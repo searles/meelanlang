@@ -21,8 +21,6 @@ import at.searles.meelan.values.Real;
 import at.searles.meelan.values.StringVal;
 import at.searles.parsing.*;
 import at.searles.parsing.utils.Utils;
-import at.searles.parsing.utils.builder.Setter;
-import at.searles.parsing.utils.builder.SetterUnsafe;
 import at.searles.regex.Regex;
 import at.searles.regex.RegexParser;
 import org.jetbrains.annotations.NotNull;
@@ -78,7 +76,7 @@ public class MeelanParser {
     private void initParser() {
         Parser<String> idString = Parser.fromToken(lexer.token(r("[A-Za-z_][0-9A-Za-z_]*")), new Mapping<CharSequence, String>() {
             @Override
-            public String parse(Environment env, @NotNull CharSequence left, ParserStream stream) {
+            public String parse(Environment env, ParserStream stream, @NotNull CharSequence left) {
                 return left.toString();
             }
 
@@ -90,7 +88,7 @@ public class MeelanParser {
 
         Parser<String> quoted = Parser.fromToken(lexer.token(r("('\"'.*'\"')!")), new Mapping<CharSequence, String>() {
             @Override
-            public String parse(Environment env, @NotNull CharSequence left, ParserStream stream) {
+            public String parse(Environment env, ParserStream stream, @NotNull CharSequence left) {
                 return left.toString().substring(1, left.length() - 1);
             }
 
@@ -218,9 +216,9 @@ public class MeelanParser {
 
         literalRef.set(literal);
 
-        Parser<Tree> andexpr = op("and", LabelIds.INFIX_KW).join(literal, Instruction.binary(And.get()));
+        Parser<Tree> andexpr = literal.then(Reducer.rep(op("and", LabelIds.INFIX_KW).then(literal.fold(Instruction.binary(And.get())))));
 
-        Parser<Tree> orexpr = op("or", LabelIds.INFIX_KW).join(andexpr, Instruction.binary(Or.get()));
+        Parser<Tree> orexpr = literal.then(Reducer.rep(op("or", LabelIds.INFIX_KW).then(andexpr.fold(Instruction.binary(Or.get())))));
 
         Parser<Tree> assignexpr = orexpr.then(
                 Reducer.opt(

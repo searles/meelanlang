@@ -19,7 +19,7 @@ public class Block extends Tree implements Iterable<Tree> {
     public static final Mapping<List<Tree>, Tree> CREATOR = new Mapping<List<Tree>, Tree>() {
 
         @Override
-        public Tree parse(Environment env, @NotNull List<Tree> left, ParserStream stream) {
+        public Tree parse(Environment env, ParserStream stream, @NotNull List<Tree> left) {
             return new Block(stream.createSourceInfo(), left);
         }
 

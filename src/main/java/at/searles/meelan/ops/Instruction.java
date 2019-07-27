@@ -91,7 +91,7 @@ public abstract class Instruction extends Tree {
     public static Mapping<Tree, Tree> unary(Instruction instruction) {
         return new Mapping<Tree, Tree>() {
             @Override
-            public Tree parse(Environment env, @NotNull Tree left, ParserStream stream) {
+            public Tree parse(Environment env, ParserStream stream, @NotNull Tree left) {
                 return new App(stream.createSourceInfo(), instruction, Collections.singletonList(left)); // todo check
             }
 
@@ -124,7 +124,7 @@ public abstract class Instruction extends Tree {
     public static Fold<Tree, Tree, Tree> binary(Instruction instruction) {
         return new Fold<Tree, Tree, Tree>() {
             @Override
-            public Tree apply(Environment env, Tree left, Tree right, ParserStream stream) {
+            public Tree apply(Environment env, ParserStream stream, Tree left, Tree right) {
                 return new App(stream.createSourceInfo(), instruction, Arrays.asList(left, right));
             }
 
@@ -155,7 +155,7 @@ public abstract class Instruction extends Tree {
     public static Mapping<List<Tree>, Tree> app(Instruction instr) {
         return new Mapping<List<Tree>, Tree>() {
             @Override
-            public Tree parse(Environment env, @NotNull List<Tree> left, ParserStream stream) {
+            public Tree parse(Environment env, ParserStream stream, @NotNull List<Tree> left) {
                 return new App(stream.createSourceInfo(), instr, left); // TODO check
             }
 

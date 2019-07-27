@@ -18,7 +18,7 @@ public class Real extends Const /*implements RealConst, CplxConst, QuatConst*/ {
 
     public static final Mapping<CharSequence, Tree> TOK = new Mapping<CharSequence, Tree>() {
         @Override
-        public Tree parse(Environment env, CharSequence left, ParserStream stream) {
+        public Tree parse(Environment env, ParserStream stream, CharSequence left) {
             return new Real(Double.parseDouble(left.toString()));
         }
 

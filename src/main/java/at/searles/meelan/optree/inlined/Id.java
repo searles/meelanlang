@@ -16,7 +16,7 @@ public class Id extends Tree {
 
     public static final Mapping<CharSequence, Tree> TOK = new Mapping<CharSequence, Tree>() {
         @Override
-        public Tree parse(Environment env, CharSequence left, ParserStream stream) {
+        public Tree parse(Environment env, ParserStream stream, CharSequence left) {
             return new Id(stream.createSourceInfo(), left.toString());
         }
 

@@ -15,7 +15,7 @@ import java.util.Objects;
 public class Bool extends Const {
     public static final Mapping<CharSequence, Tree> TOK = new Mapping<CharSequence, Tree>() {
         @Override
-        public Tree parse(Environment env, CharSequence left, ParserStream stream) {
+        public Tree parse(Environment env, ParserStream stream, CharSequence left) {
             return new Bool(Boolean.parseBoolean(left.toString()));
         }
 

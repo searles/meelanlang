@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 public class ObjectDeclaration extends Tree {
     public static final Fold<String, Tree, Tree> CREATE = new Fold<String, Tree, Tree>() {
         @Override
-        public Tree apply(Environment env, String left, Tree right, ParserStream stream) {
+        public Tree apply(Environment env, ParserStream stream, String left, Tree right) {
             return new ObjectDeclaration(stream.createSourceInfo(), left, right);
         }
 

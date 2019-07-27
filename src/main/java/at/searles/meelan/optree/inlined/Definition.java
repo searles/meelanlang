@@ -19,7 +19,7 @@ public class Definition extends Tree {
 
     public static final Fold<String, Tree, Tree> CREATE = new Fold<String, Tree, Tree>() {
         @Override
-        public Tree apply(Environment env, String left, Tree right, ParserStream stream) {
+        public Tree apply(Environment env, ParserStream stream, String left, Tree right) {
             return new Definition(stream.createSourceInfo(), left, right);
         }
 

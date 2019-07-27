@@ -28,7 +28,7 @@ public class While extends Tree {
 
     public static final Mapping<Tree, Tree> CREATE = new Mapping<Tree, Tree>() {
         @Override
-        public Tree parse(Environment env, Tree left, ParserStream stream) {
+        public Tree parse(Environment env, ParserStream stream, Tree left) {
             return new While(stream.createSourceInfo(), left, null);
         }
 
@@ -44,7 +44,7 @@ public class While extends Tree {
 
     public static final Fold<Tree, Tree, Tree> CREATE_DO = new Fold<Tree, Tree, Tree>() {
         @Override
-        public Tree apply(Environment env, Tree left, Tree right, ParserStream stream) {
+        public Tree apply(Environment env, ParserStream stream, Tree left, Tree right) {
             return new While(stream.createSourceInfo(), left, right);
         }
 

@@ -17,7 +17,7 @@ public class Int extends Const {
 
     public static final Mapping<CharSequence, Tree> NUM = new Mapping<CharSequence, Tree>() {
         @Override
-        public Tree parse(Environment env, CharSequence left, ParserStream stream) {
+        public Tree parse(Environment env, ParserStream stream, CharSequence left) {
             return new Int(Integer.parseInt(left.toString()));
         }
 
@@ -29,7 +29,7 @@ public class Int extends Const {
 
     public static final Mapping<CharSequence, Tree> HEX = new Mapping<CharSequence, Tree>() {
         @Override
-        public Tree parse(Environment env, CharSequence left, ParserStream stream) {
+        public Tree parse(Environment env, ParserStream stream, CharSequence left) {
             return new Int(hexColor(left));
         }
 

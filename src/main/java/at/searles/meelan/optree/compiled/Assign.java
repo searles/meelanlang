@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 public class Assign extends Tree {
     public static final Fold<Tree, Tree, Tree> CREATE = new Fold<Tree, Tree, Tree>() {
         @Override
-        public Tree apply(Environment env, Tree left, Tree right, ParserStream stream) {
+        public Tree apply(Environment env, ParserStream stream, Tree left, Tree right) {
             return new Assign(stream.createSourceInfo(), left, right);
         }
 

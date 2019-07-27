@@ -30,7 +30,7 @@ public class App extends Tree implements Derivable {
 
     public static final Fold<Tree, List<Tree>, Tree> CREATOR = new Fold<Tree, List<Tree>, Tree>() {
         @Override
-        public Tree apply(Environment env, Tree left, List<Tree> args, ParserStream stream) {
+        public Tree apply(Environment env, ParserStream stream, Tree left, List<Tree> args) {
             return new App(stream.createSourceInfo(), left, args);
         }
 
@@ -63,7 +63,7 @@ public class App extends Tree implements Derivable {
     public static final Fold<List<Tree>, Tree, List<Tree>> APPLY_TUPEL = new Fold<List<Tree>, Tree, List<Tree>>() {
 
         @Override
-        public List<Tree> apply(Environment environment, List<Tree> args, Tree tree, ParserStream parserStream) {
+        public List<Tree> apply(Environment environment, ParserStream parserStream, List<Tree> args, Tree tree) {
             ArrayList<Tree> appArgs = new ArrayList<>(args.size());
 
             appArgs.addAll(args.stream().map(arg -> new App(parserStream.createSourceInfo(), arg, tree)).collect(Collectors.toList()));

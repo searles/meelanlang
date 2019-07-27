@@ -23,61 +23,6 @@ import java.util.stream.Stream;
 public class IfElse extends Tree {
 
     // order is (thenExpr, condition), elseExpr.
-    public static final Fold<Pair<Tree, Tree>, Tree, Tree> EXPR = new Fold<Pair<Tree, Tree>, Tree, Tree>() {
-
-        @Override
-        public Tree apply(Environment env, Pair<Tree, Tree> left, Tree right, ParserStream stream) {
-            return new IfElse(stream.createSourceInfo(), left.r(), left.l(), right);
-        }
-
-        @Override
-        public Pair<Tree, Tree> leftInverse(Environment env, Tree result) {
-            if(!(result instanceof IfElse)) {
-                return null;
-            }
-
-            IfElse ifElse = (IfElse) result;
-
-            return new Pair<>(ifElse.thenPart, ifElse.cond);
-        }
-
-        @Override
-        public Tree rightInverse(Environment env, Tree result) {
-            if(!(result instanceof IfElse)) {
-                return null;
-            }
-
-            IfElse ifElse = (IfElse) result;
-
-            return ifElse.elsePart;
-        }
-    };
-
-    public static final Fold<Pair<Tree, Tree>, Tree, Tree> STMT = new Fold<Pair<Tree, Tree>, Tree, Tree>() {
-        @Override
-        public Tree apply(Environment env, Pair<Tree, Tree> left, Tree right, ParserStream stream) {
-            return new IfElse(stream.createSourceInfo(), left.l(), left.r(), right);
-        }
-
-        @Override
-        public Pair<Tree, Tree> leftInverse(Environment env, Tree result) {
-            if(!(result instanceof IfElse)) {
-                return null;
-            }
-
-            return new Pair<>(((IfElse) result).cond, ((IfElse) result).thenPart);
-        }
-
-        @Override
-        public Tree rightInverse(Environment env, Tree result) {
-            if(!(result instanceof IfElse)) {
-                return null;
-            }
-
-            return ((IfElse) result).elsePart;
-        }
-    };
-
     private Tree cond;
     private Tree thenPart;
     private Tree elsePart;

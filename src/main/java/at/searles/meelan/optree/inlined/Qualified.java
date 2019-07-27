@@ -21,7 +21,7 @@ public class Qualified extends Tree {
 
     public static final Fold<Tree, String, Tree> CREATOR = new Fold<Tree, String, Tree>() {
         @Override
-        public Tree apply(Environment env, Tree left, String right, ParserStream stream) {
+        public Tree apply(Environment env, ParserStream stream, Tree left, String right) {
             return new Qualified(stream.createSourceInfo(), left, right);
         }
 
