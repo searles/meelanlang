@@ -1,0 +1,100 @@
+SL_COMMENT: ('//'.*"\n")^
+ML_COMMENT: ('/*'.*'*/')^
+
+ID:
+STRING:
+INT: '0'|[1-9][0-9]{0,8} ;
+HEX: '#'[0-9A-Fa-f]{1,8} ;
+REAL: ('0'|[1-9][0-9]*)('.'[0-9]*)?([eE][+\-]?[0-9]+)? ;
+BOOL: 'true' | 'false' ;
+
+arglist: `Utils.list(expr, token(','))` ;
+
+vector: '[' args ']' `Vector.CREATE` ;
+
+primary: ID | STRING | INT | HEX | REAL | BOOL | VECTOR | '(' expr ')' ;
+
+qualified: primary ('.' ID `Qualified.CREATE` )* ;
+
+// Inverse of App.APPLY_ALL always fails (inversion is difficult)
+
+args: '(' arglist ')' (app >> `App.APPLY_ALL`)? // (a, b) c ==> (a c, b c)
+          | `Utils.singleton(app)`
+          ;
+          
+app: qualified (args >> `App.APPLY` )? ;
+
+block: '{' stmts '}' `Block.CREATE` ;
+
+term: block | app ;
+
+unary: '-' unary >> `Instruction.unary(Neg.get())`
+      | '/' unary >> `Instruction.unary(Recip.get())`
+      | term
+      ;
+      
+ifexpr: unexpr ( 
+            'if' expr >> `Utils.swapPair()` // swap condition an then-expr.
+            'else' expr >> IfElse.CREATE
+        )? ;
+        
+cons: ifexpr (
+            ':' `Utils.binary(ifexpr)` ( 
+                ':' ifexpr >> Utils.cons(2) 
+                )* >> `Instruction.app(Cons.get())` 
+          )? ;
+
+// FIXME join syntax?
+power: cons ('^' cons >> `Instruction.binary(Pow.get())`)* ;
+
+product: power (
+              '*' power >> `Instruction.binary(Mul.get())`
+              | '/' power >> `Instruction.binary(Div.get())`
+              | '%' power >> `Instruction.binary(Mod.get())`  
+         )*;
+
+sum: product (
+              '+' product >> `Instruction.binary(Add.get())`
+              | '-' cons >> `Instruction.binary(Sub.get())`  
+         )*;
+
+comparison: 
+
+literal:
+
+conjunction: 
+
+disjunction:
+
+assignment:
+
+whilestmt: 
+
+forstmt:
+
+ifstmt:
+
+stmt:
+
+extern: 
+
+parameters: '(' `Utils.list(ID, ',')` ')' ;
+
+func: 
+
+template: 
+
+alias:
+
+defs: extern | func | template | alias ;
+
+var: 
+
+vars: 'var'
+
+object: 
+
+objects: 'object' 
+
+stmts: ;
+
