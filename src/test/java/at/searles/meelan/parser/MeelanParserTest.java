@@ -1,9 +1,6 @@
-package at.searles.meelan.parser.test;
+package at.searles.meelan.parser;
 
 import at.searles.lexer.TokStream;
-import at.searles.meelan.parser.MeelanEnv;
-import at.searles.meelan.parser.MeelanParser;
-import at.searles.meelan.parser.MeelanPrinter;
 import at.searles.parsing.Environment;
 import at.searles.parsing.Parser;
 import at.searles.parsing.ParserStream;
@@ -22,14 +19,13 @@ public class MeelanParserTest {
     @Before
     public void setUp() {
         env = new MeelanEnv();
-        parser = new MeelanParser();
     }
 
     @Test
     public void testInt() {
         withSource("1");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("1");
     }
@@ -38,7 +34,7 @@ public class MeelanParserTest {
     public void testReal() {
         withSource("1.1");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("1.1");
     }
@@ -46,7 +42,7 @@ public class MeelanParserTest {
     @Test
     public void testExpReal() {
         withSource("1e9");
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
         assertResult("1.0E9");
     }
 
@@ -54,7 +50,7 @@ public class MeelanParserTest {
     public void testId() {
         withSource("a");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("a");
     }
@@ -63,7 +59,7 @@ public class MeelanParserTest {
     public void testQualified() {
         withSource("a.b");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("a.b");
     }
@@ -72,7 +68,7 @@ public class MeelanParserTest {
     public void testPostfixNoQualifier() {
         withSource("1");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("1");
     }
@@ -81,7 +77,7 @@ public class MeelanParserTest {
     public void testAppInt() {
         withSource("1");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("1");
     }
@@ -89,7 +85,7 @@ public class MeelanParserTest {
     @Test
     public void testNeg() {
         withSource("-1");
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
         assertResult("- 1");
     }
 
@@ -97,7 +93,7 @@ public class MeelanParserTest {
     public void testAdd() {
         withSource("1 + a");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("1 + a");
     }
@@ -106,7 +102,7 @@ public class MeelanParserTest {
     public void testInParentheses() {
         withSource("(1 + a)");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("1 + a");
     }
@@ -115,7 +111,7 @@ public class MeelanParserTest {
     public void testSimpleId() {
         withSource("a");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("a");
     }
@@ -124,7 +120,7 @@ public class MeelanParserTest {
     public void testMultipleArgsInBrackets() {
         withSource("a(1, 2)");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("a(1, 2)");
     }
@@ -133,7 +129,7 @@ public class MeelanParserTest {
     public void testEmptyArgsInBrackets() {
         withSource("a()");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("a()");
     }
@@ -142,7 +138,7 @@ public class MeelanParserTest {
     public void testSingleAppArg() {
         withSource("a b c");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("a b c");
     }
@@ -151,7 +147,7 @@ public class MeelanParserTest {
     public void testSingleAppArgsInBrackets() {
         withSource("(a (b+1) c)");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("a (b + 1) c");
     }
@@ -160,7 +156,7 @@ public class MeelanParserTest {
     public void testMultipleAppArgsInBracketsFail() {
         withSource("(a (b+1,d) c)");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("a((b + 1) c, d c)");
     }
@@ -169,7 +165,7 @@ public class MeelanParserTest {
     public void testEmptyAppArgsInBrackets() {
         withSource("(a () c)");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("a()");
     }
@@ -178,7 +174,7 @@ public class MeelanParserTest {
     public void testIfElseExpr() {
         withSource("a if 1 == 1 else b");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("a if 1 == 1 else b");
     }
@@ -187,7 +183,7 @@ public class MeelanParserTest {
     public void testCons() {
         withSource("a:b:c:d");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("a : b : c : d");
     }
@@ -196,7 +192,7 @@ public class MeelanParserTest {
     public void testConsWithTwo() {
         withSource("a:b");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("a : b");
     }
@@ -205,7 +201,7 @@ public class MeelanParserTest {
     public void testSub() {
         withSource("a - b");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("a - b");
     }
@@ -214,7 +210,7 @@ public class MeelanParserTest {
     public void testVector() {
         withSource("[1,2,3]");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("[1, 2, 3]");
     }
@@ -223,7 +219,7 @@ public class MeelanParserTest {
     public void testDiv() {
         withSource("a / b");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("a / b");
     }
@@ -233,7 +229,7 @@ public class MeelanParserTest {
     public void testAnd() {
         withSource("rc =< 4 and rc >= 2");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("rc =< 4 and rc >= 2");
     }
@@ -242,7 +238,7 @@ public class MeelanParserTest {
     public void testDeclarations() {
         withSource("{def a = 12; def b = 5;}");
 
-        runParser(parser.stmts);
+        runParser(MeelanParser.stmts());
 
         assertResult("{\n" +
                 "    def a = 12;\n" +
@@ -253,7 +249,7 @@ public class MeelanParserTest {
     @Test
     public void testString() {
         withSource("\"0\"");
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("\"0\"");
     }
@@ -262,7 +258,7 @@ public class MeelanParserTest {
     public void testIfElseStmt() {
         withSource("if 1 == 1 then a else b");
 
-        runParser(parser.stmt);
+        runParser(MeelanParser.stmt());
 
         assertResult("if 1 == 1 then a else b");
     }
@@ -271,7 +267,7 @@ public class MeelanParserTest {
     public void testForVector() {
         withSource("for i in [1, 2, 3] do {}");
 
-        runParser(parser.stmt);
+        runParser(MeelanParser.stmt());
 
         assertResult("for i in [1, 2, 3] do {\n" +
                 "}");
@@ -282,7 +278,7 @@ public class MeelanParserTest {
     public void testIfStmt() {
         withSource("if 1 == 1 then a");
 
-        runParser(parser.stmt);
+        runParser(MeelanParser.stmt());
 
         assertResult("if 1 == 1 then a");
     }
@@ -292,7 +288,7 @@ public class MeelanParserTest {
     public void testWhileStmt() {
         withSource("while 1 == 1 do a = 1");
 
-        runParser(parser.stmt);
+        runParser(MeelanParser.stmt());
 
         assertResult("while 1 == 1 do a = 1");
     }
@@ -301,7 +297,7 @@ public class MeelanParserTest {
     public void testExprBlock() {
         withSource("1+{2}");
 
-        runParser(parser.expr);
+        runParser(MeelanParser.expr());
 
         assertResult("1 + {\n" +
                 "    2;\n" +
@@ -312,7 +308,7 @@ public class MeelanParserTest {
     public void testEmptyBlock() {
         withSource("{}");
 
-        runParser(parser.stmts);
+        runParser(MeelanParser.stmts());
 
         assertResult("{\n};\n");
     }
@@ -321,7 +317,7 @@ public class MeelanParserTest {
     public void testBlock() {
         withSource("{ def a = 1; def b = 2 }");
 
-        runParser(parser.stmts);
+        runParser(MeelanParser.stmts());
 
         assertResult("{\n" +
                 "    def a = 1;\n" +
@@ -333,7 +329,7 @@ public class MeelanParserTest {
     public void testExprAsStmt() {
         withSource("1");
 
-        runParser(parser.stmt);
+        runParser(MeelanParser.stmt());
 
         assertResult("1");
     }
@@ -342,7 +338,7 @@ public class MeelanParserTest {
     public void testExprsAsStmts() {
         withSource("1;");
 
-        runParser(parser.stmts);
+        runParser(MeelanParser.stmts());
 
         assertResult("1;\n");
     }
@@ -351,7 +347,7 @@ public class MeelanParserTest {
     public void testVarStmtSimple() {
         withSource("var a = 1;");
 
-        runParser(parser.stmts);
+        runParser(MeelanParser.stmts());
 
         assertResult("var a = 1;\n");
     }
@@ -360,7 +356,7 @@ public class MeelanParserTest {
     public void testVarStmtComplex() {
         withSource("var a int = 2, b real, c;");
 
-        runParser(parser.stmts);
+        runParser(MeelanParser.stmts());
 
         assertResult("var a int = 2, b real, c;\n");
     }
@@ -369,7 +365,7 @@ public class MeelanParserTest {
     public void fullEuclid() {
         withSource("var a = 4, b = 3; while a >< b do if a < b then b = b - a else a = a - b;");
 
-        runParser(parser.stmts);
+        runParser(MeelanParser.stmts());
 
         assertResult("var a = 4, b = 3;\n" +
                 "while a >< b do if a < b then b = b - a else a = a - b;\n");
@@ -379,7 +375,7 @@ public class MeelanParserTest {
     public void testSingleLineComments() {
         withSource("// this is a comment\na = a");
 
-        runParser(parser.stmt);
+        runParser(MeelanParser.stmt());
 
         assertResult("a = a");
     }
@@ -388,7 +384,7 @@ public class MeelanParserTest {
     public void testMultiLineComments() {
         withSource("/* this \n is \n a \n comment\n*/a = a/*and another one */");
 
-        runParser(parser.stmt);
+        runParser(MeelanParser.stmt());
 
         assertResult("a = a");
     }
@@ -397,7 +393,7 @@ public class MeelanParserTest {
     public void testFnWithSingleArgument() {
         withSource("func f(a) {}");
 
-        runParser(parser.stmts);
+        runParser(MeelanParser.stmts());
 
         assertResult("func f(a) {\n" +
                 "};\n");
@@ -408,7 +404,7 @@ public class MeelanParserTest {
         withSource("func f(a, b, c) {}\n"
         );
 
-        runParser(parser.stmts);
+        runParser(MeelanParser.stmts());
 
         assertResult("func f(a, b, c) {\n" +
                 "};\n");
@@ -417,14 +413,14 @@ public class MeelanParserTest {
     @Test
     public void testExtern() {
         withSource("extern maxdepth int = 120;");
-        runParser(parser.stmts);
+        runParser(MeelanParser.stmts());
         assertResult("extern maxdepth int \"maxdepth\" = 120;\n");
     }
 
     @Test
     public void testClass() {
         withSource("template a(b) { func c(d) { b + d } };");
-        runParser(parser.stmts);
+        runParser(MeelanParser.stmts());
         assertResult("template a(b) {\n" +
                 "    func c(d) {\n" +
                 "        b + d;\n" +
@@ -435,20 +431,19 @@ public class MeelanParserTest {
     @Test
     public void testAssignmentInArguments() {
         withSource("fn(a = 1)");
-        runParser(parser.stmts);
+        runParser(MeelanParser.stmts());
         assertResult("fn (a = 1);\n");
     }
 
     @Test
     public void testObjects() {
         withSource("object a = A(1,2), b = B(2,3);");
-        runParser(parser.stmts);
+        runParser(MeelanParser.stmts());
         assertResult("object a = A(1, 2), b = B(2, 3);\n");
     }
 
-    // @Test Deactivated because cplx/quat cannot be printed.
+    // @Test FIXME Deactivated because cplx/quat cannot be printed.
     public void fullProgramLastFractview() {
-        // FIXME find a solution for this.
         withSource("// Default Preset\n" +
                 "// This is a good start for all kinds of fractals\n" +
                 "// including newton sets, nova fractals and others.\n" +
@@ -664,11 +659,11 @@ public class MeelanParserTest {
                 "    color = lab2int fn(x, y)\n" +
                 "}\n" +
                 "\n" +
-                "// and finally call the draing procedure\n" +
+                "// and finally call the drawing procedure\n" +
                 "do_pixel(x, y)\n" +
                 "}");
 
-        runParser(parser.stmts);
+        runParser(MeelanParser.stmts());
 
         assertResult("{\n" +
                 "    var x int, y int, color int;\n" +
@@ -817,7 +812,6 @@ public class MeelanParserTest {
 
     private <A> void runParser(Parser<A> parser) {
         this.result = check(parser, input);
-
     }
 
     private void withSource(String input) {

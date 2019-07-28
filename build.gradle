@@ -16,5 +16,5 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     implementation 'com.github.searles.utils:math:0.2'
     implementation 'com.github.searles.utils:color:0.2'
-    implementation 'com.github.searles:parsing:6f3101eb546be494df46879262909bacdb801842'
+    implementation 'com.github.searles:parsing:6bd1c898138b95a93a76753a508f71a4a76ec507'
 }

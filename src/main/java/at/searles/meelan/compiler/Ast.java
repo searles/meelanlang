@@ -4,31 +4,18 @@ import at.searles.meelan.MeelanException;
 import at.searles.meelan.ops.InstructionSet;
 import at.searles.meelan.optree.Tree;
 import at.searles.meelan.optree.compiled.Block;
-import at.searles.meelan.optree.inlined.ExternDeclaration;
 import at.searles.meelan.optree.inlined.Frame;
 import at.searles.meelan.parser.MeelanParser;
 import at.searles.meelan.symbols.*;
 import at.searles.parsing.Environment;
 import at.searles.parsing.ParserStream;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Ast {
 
-    private static MeelanParser parser;
-
-    public static MeelanParser parser() {
-        if(parser == null) {
-            parser = new MeelanParser();
-        }
-
-        return parser;
-    }
-
     public static Ast parse(Environment env, ParserStream input) {
-        List<Tree> ast = parser().parse(env, input);
+        List<Tree> ast = MeelanParser.stmts().parse(env, input);
         return new Ast(new Block(input.createSourceInfo(), ast));
     }
 

@@ -1,8 +1,6 @@
 package at.searles.meelan.parser;
 
-
 import at.searles.lexer.LexerWithHidden;
-import at.searles.lexer.Token;
 import at.searles.meelan.ops.Instruction;
 import at.searles.meelan.ops.arithmetics.*;
 import at.searles.meelan.ops.arithmetics.Neg;
@@ -21,6 +19,7 @@ import at.searles.meelan.values.Real;
 import at.searles.meelan.values.StringVal;
 import at.searles.parsing.*;
 import at.searles.parsing.utils.Utils;
+import at.searles.parsing.utils.list.SingleList;
 import at.searles.regex.Regex;
 import at.searles.regex.RegexParser;
 import org.jetbrains.annotations.NotNull;
@@ -29,40 +28,43 @@ import java.util.List;
 
 public class MeelanParser {
 
+    private static class Holder {
+        static final MeelanParser INSTANCE = new MeelanParser();
+    }
+
+    public static Parser<List<Tree>> stmts() {
+        return Holder.INSTANCE.stmts;
+    }
+
+    public static Parser<Tree> stmt() {
+        return Holder.INSTANCE.stmt;
+    }
+
+    public static Parser<Tree> expr() {
+        return Holder.INSTANCE.expr;
+    }
+
     private LexerWithHidden lexer;
 
-    private Token ws;
-    private Token singleLineComment;
-    private Token multilinelComment;
+    private Parser<List<Tree>> stmts;
+    private Parser<Tree> expr;
+    private Parser<Tree> stmt;
 
-    private Mapping<CharSequence, Integer> toInt;
-    private Mapping<CharSequence, Double> toReal;
-    private Mapping<CharSequence, Integer> toHexColor;
-    private Mapping<CharSequence, String> toUnquotedString;
-
-    // XXX Parsers are public for tests, but they shouldn't be...
-
-    public Parser<List<Tree>> stmts;
-    public Parser<Tree> app;
-    public Parser<Tree> expr;
-    public Parser<Tree> stmt;
-
-    public MeelanParser() {
+    private MeelanParser() {
         initLexer();
         initParser();
     }
-
 
     private Regex r(String regex) {
         return RegexParser.parse(regex);
     }
 
 
-    public Recognizer op(String s) {
+    private Recognizer op(String s) {
         return Recognizer.fromString(s, lexer, false);
     }
 
-    public Recognizer op(String s, LabelIds labelId) {
+    private Recognizer op(String s, LabelIds labelId) {
         return Recognizer.fromString(s, lexer, false).annotate(labelId);
     }
 
@@ -177,8 +179,13 @@ public class MeelanParser {
         Parser<Tree> consexpr = ifexpr.then(
             Reducer.opt(
                 op(":", LabelIds.INFIX_OP)
-                .then(Utils.prepend(Utils.list(ifexpr, op(":", LabelIds.INFIX_OP))))
-                .then(Instruction.app(Cons.get()))
+                .then(Utils.binary(ifexpr))
+                .then(
+                    Reducer.rep(
+                        Utils.append(op(":", LabelIds.INFIX_OP).then(ifexpr), 2)
+                    )
+                )
+                .then(Instruction.app(Cons.get())
             )
         );
 
@@ -193,12 +200,12 @@ public class MeelanParser {
         ));
 
         Parser<Tree> sumexpr = mulexpr.then(Reducer.rep(
-                op("+", LabelIds.INFIX_OP).<Tree, Tree>then(mulexpr.fold(Instruction.binary(Add.get())))
+                op("+", LabelIds.INFIX_OP).then(mulexpr.fold(Instruction.binary(Add.get())))
                 .or(op("-", LabelIds.INFIX_OP).then(mulexpr.fold(Instruction.binary(Sub.get()))))
         ));
 
         Parser<Tree> compexpr = sumexpr.then(
-                Reducer.<Tree>opt(
+                Reducer.opt(
                     op("<", LabelIds.INFIX_OP).then(sumexpr).fold(Instruction.binary(Less.get()))
                     .or(op("=<", LabelIds.INFIX_OP).then(sumexpr).fold(Instruction.binary(LessEq.get())))
                     .or(op("==", LabelIds.INFIX_OP).then(sumexpr).fold(Instruction.binary(Equal.get())))
@@ -218,7 +225,7 @@ public class MeelanParser {
 
         Parser<Tree> andexpr = literal.then(Reducer.rep(op("and", LabelIds.INFIX_KW).then(literal.fold(Instruction.binary(And.get())))));
 
-        Parser<Tree> orexpr = literal.then(Reducer.rep(op("or", LabelIds.INFIX_KW).then(andexpr.fold(Instruction.binary(Or.get())))));
+        Parser<Tree> orexpr = andexpr.then(Reducer.rep(op("or", LabelIds.INFIX_KW).then(andexpr.fold(Instruction.binary(Or.get())))));
 
         Parser<Tree> assignexpr = orexpr.then(
                 Reducer.opt(
@@ -226,7 +233,7 @@ public class MeelanParser {
                 )
         );
 
-        Parser<Tree> expr = assignexpr;
+        expr = assignexpr;
 
         exprRef.set(assignexpr);
 
@@ -261,7 +268,7 @@ public class MeelanParser {
                 )
                 .then(Utils.build(IfElse.Builder.class));
 
-        Parser<Tree> stmt = whilestmt.or(forstmt).or(ifstmt).or(expr);
+        stmt = whilestmt.or(forstmt).or(ifstmt).or(expr);
 
         stmtRef.set(stmt);
 
@@ -335,29 +342,9 @@ public class MeelanParser {
                 .then(op(";", LabelIds.STMT_END)
                 .opt(true));
 
-        this.stmts = Utils.<Tree>empty()
+        stmts = Utils.<Tree>empty()
                 .then(Reducer.rep(stmtAppender));
 
         stmtsRef.set(stmts);
-
-        this.app = app;
-        this.expr = expr;
-        this.stmt = stmt;
-    }
-
-    public List<Tree> parse(Environment env, ParserStream stream) {
-        return stmts.parse(env, stream);
-    }
-
-    public Tree parseExpr(Environment env, ParserStream stream) {
-        return stmt.parse(env, stream);
-    }
-
-    public String print(Environment env, List<Tree> program) {
-        return stmts.print(env, program).toString();
-    }
-
-    public boolean recognize(Environment env, ParserStream stream) {
-        return stmts.recognize(env, stream);
     }
 }
