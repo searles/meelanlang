@@ -442,7 +442,7 @@ public class MeelanParserTest {
         assertResult("object a = A(1, 2), b = B(2, 3);\n");
     }
 
-    // @Test FIXME Deactivated because cplx/quat cannot be printed.
+    @Test
     public void fullProgramLastFractview() {
         withSource("// Default Preset\n" +
                 "// This is a good start for all kinds of fractals\n" +

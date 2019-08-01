@@ -11,6 +11,7 @@ import at.searles.parsing.Environment;
 import at.searles.parsing.Fold;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Stream;
 
@@ -21,17 +22,17 @@ public class Qualified extends Tree {
 
     public static final Fold<Tree, String, Tree> CREATOR = new Fold<Tree, String, Tree>() {
         @Override
-        public Tree apply(Environment env, ParserStream stream, Tree left, String right) {
+        public Tree apply(Environment env, ParserStream stream, @NotNull Tree left, @NotNull String right) {
             return new Qualified(stream.createSourceInfo(), left, right);
         }
 
-        private boolean canInvert(Tree result) {
-            return result instanceof Qualified;
+        private boolean cannotInvert(Tree result) {
+            return !(result instanceof Qualified);
         }
 
         @Override
-        public Tree leftInverse(Environment env, Tree result) {
-            if(!canInvert(result)) {
+        public Tree leftInverse(Environment env, @NotNull Tree result) {
+            if(cannotInvert(result)) {
                 return null;
             }
 
@@ -39,8 +40,8 @@ public class Qualified extends Tree {
         }
 
         @Override
-        public String rightInverse(Environment env, Tree result) {
-            if(!canInvert(result)) {
+        public String rightInverse(Environment env, @NotNull Tree result) {
+            if(cannotInvert(result)) {
                 return null;
             }
 

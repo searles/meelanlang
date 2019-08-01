@@ -9,7 +9,7 @@ import at.searles.meelan.types.BaseType;
 import at.searles.parsing.Environment;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
-import at.searles.utils.GenericBuilder;
+import at.searles.utils.GenericStruct;
 import java.util.stream.Stream;
 
 public class VarDeclaration extends Tree {
@@ -87,7 +87,7 @@ public class VarDeclaration extends Tree {
         return newInit != null ? new Assign(sourceInfo(), var, newInit) : null;
     }
 
-    public static class Builder extends GenericBuilder<Builder, VarDeclaration> {
+    public static class Builder extends GenericStruct<Builder> {
         public String id;
         public String type;
         public Tree value;

@@ -124,7 +124,7 @@ public abstract class Instruction extends Tree {
     public static Fold<Tree, Tree, Tree> binary(Instruction instruction) {
         return new Fold<Tree, Tree, Tree>() {
             @Override
-            public Tree apply(Environment env, ParserStream stream, Tree left, Tree right) {
+            public Tree apply(Environment env, ParserStream stream, @NotNull Tree left, @NotNull Tree right) {
                 return new App(stream.createSourceInfo(), instruction, Arrays.asList(left, right));
             }
 
@@ -136,12 +136,12 @@ public abstract class Instruction extends Tree {
             }
 
             @Override
-            public Tree leftInverse(Environment env, Tree result) {
+            public Tree leftInverse(Environment env, @NotNull Tree result) {
                 return canInvert(result) ? ((App) result).args().get(0) : null;
             }
 
             @Override
-            public Tree rightInverse(Environment env, Tree result) {
+            public Tree rightInverse(Environment env, @NotNull Tree result) {
                 return canInvert(result) ? ((App) result).args().get(1) : null;
             }
 

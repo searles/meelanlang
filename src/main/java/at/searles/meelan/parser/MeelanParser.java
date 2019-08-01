@@ -3,10 +3,7 @@ package at.searles.meelan.parser;
 import at.searles.lexer.LexerWithHidden;
 import at.searles.meelan.ops.Instruction;
 import at.searles.meelan.ops.arithmetics.*;
-import at.searles.meelan.ops.arithmetics.Neg;
-import at.searles.meelan.ops.arithmetics.Recip;
 import at.searles.meelan.ops.bool.*;
-import at.searles.meelan.ops.bool.Not;
 import at.searles.meelan.ops.comparison.*;
 import at.searles.meelan.ops.cons.Cons;
 import at.searles.meelan.optree.Tree;
@@ -19,7 +16,6 @@ import at.searles.meelan.values.Real;
 import at.searles.meelan.values.StringVal;
 import at.searles.parsing.*;
 import at.searles.parsing.utils.Utils;
-import at.searles.parsing.utils.list.SingleList;
 import at.searles.regex.Regex;
 import at.searles.regex.RegexParser;
 import org.jetbrains.annotations.NotNull;
@@ -185,7 +181,7 @@ public class MeelanParser {
                         Utils.append(op(":", LabelIds.INFIX_OP).then(ifexpr), 2)
                     )
                 )
-                .then(Instruction.app(Cons.get())
+                .then(Instruction.app(Cons.get()))
             )
         );
 

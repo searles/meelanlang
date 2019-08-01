@@ -9,6 +9,7 @@ import at.searles.meelan.types.BaseType;
 import at.searles.parsing.Environment;
 import at.searles.parsing.Mapping;
 import at.searles.parsing.ParserStream;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -20,7 +21,7 @@ public class Bool extends Const {
         }
 
         @Override
-        public CharSequence left(Environment env, Tree result) {
+        public CharSequence left(Environment env, @NotNull Tree result) {
             return result instanceof Bool ? Boolean.toString(((Bool) result).value()) : null;
         }
     };

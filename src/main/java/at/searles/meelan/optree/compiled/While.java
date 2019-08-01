@@ -2,38 +2,32 @@ package at.searles.meelan.optree.compiled;
 
 import at.searles.meelan.MeelanException;
 import at.searles.meelan.compiler.Executable;
-import at.searles.meelan.ops.comparison.Greater;
 import at.searles.meelan.ops.sys.Jump;
 import at.searles.meelan.optree.Tree;
 import at.searles.meelan.optree.inlined.Frame;
-import at.searles.meelan.optree.inlined.Id;
-import at.searles.meelan.optree.inlined.VarDeclaration;
 import at.searles.meelan.symbols.*;
 import at.searles.meelan.types.BaseType;
-import at.searles.meelan.values.Int;
 import at.searles.meelan.values.Label;
 import at.searles.parsing.Environment;
 import at.searles.parsing.Fold;
 import at.searles.parsing.Mapping;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
-import at.searles.utils.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.stream.Stream;
 
 public class While extends Tree {
 
     public static final Mapping<Tree, Tree> CREATE = new Mapping<Tree, Tree>() {
         @Override
-        public Tree parse(Environment env, ParserStream stream, Tree left) {
+        public Tree parse(Environment env, ParserStream stream, @NotNull Tree left) {
             return new While(stream.createSourceInfo(), left, null);
         }
 
         @Override
-        public Tree left(Environment env, Tree result) {
+        public Tree left(Environment env, @NotNull Tree result) {
             if(!(result instanceof While) || ((While) result).body != null) {
                 return null;
             }
@@ -44,12 +38,12 @@ public class While extends Tree {
 
     public static final Fold<Tree, Tree, Tree> CREATE_DO = new Fold<Tree, Tree, Tree>() {
         @Override
-        public Tree apply(Environment env, ParserStream stream, Tree left, Tree right) {
+        public Tree apply(Environment env, ParserStream stream, @NotNull Tree left, @NotNull Tree right) {
             return new While(stream.createSourceInfo(), left, right);
         }
 
         @Override
-        public Tree leftInverse(Environment env, Tree result) {
+        public Tree leftInverse(Environment env, @NotNull Tree result) {
             if(!(result instanceof While) || ((While) result).body == null) {
                 return null;
             }
@@ -58,7 +52,7 @@ public class While extends Tree {
         }
 
         @Override
-        public Tree rightInverse(Environment env, Tree result) {
+        public Tree rightInverse(Environment env, @NotNull Tree result) {
             if(!(result instanceof While) || ((While) result).body == null) {
                 return null;
             }

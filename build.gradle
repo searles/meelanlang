@@ -14,7 +14,8 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation 'com.github.searles.utils:strings:0.3.0'
     implementation 'com.github.searles.utils:math:0.2'
     implementation 'com.github.searles.utils:color:0.2'
-    implementation 'com.github.searles:parsing:6bd1c898138b95a93a76753a508f71a4a76ec507'
+    implementation 'com.github.searles:parsing:e560028903de48171ee4a34f219e213e9fc645aa'
 }

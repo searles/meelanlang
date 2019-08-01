@@ -32,7 +32,7 @@ public class Real extends Const /*implements RealConst, CplxConst, QuatConst*/ {
         // TODO Move to commons
         long l = Double.doubleToRawLongBits(d);
         // beware of big endian systems [are there any?]
-        return new int[]{(int) (l & 0x0ffffffffl), (int) (l >> 32)};
+        return new int[]{(int) (l & 0x0ffffffffL), (int) (l >> 32)};
     }
 
     public static final Real ZERO = new Real(0);

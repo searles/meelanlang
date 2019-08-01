@@ -18,6 +18,7 @@ import at.searles.parsing.Environment;
 import at.searles.parsing.Fold;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,12 +31,12 @@ public class App extends Tree implements Derivable {
 
     public static final Fold<Tree, List<Tree>, Tree> CREATOR = new Fold<Tree, List<Tree>, Tree>() {
         @Override
-        public Tree apply(Environment env, ParserStream stream, Tree left, List<Tree> args) {
+        public Tree apply(Environment env, ParserStream stream, @NotNull Tree left, @NotNull List<Tree> args) {
             return new App(stream.createSourceInfo(), left, args);
         }
 
         @Override
-        public Tree leftInverse(Environment env, Tree result) {
+        public Tree leftInverse(Environment env, @NotNull Tree result) {
             if(!(result instanceof App)) {
                 return null;
             }
@@ -51,7 +52,7 @@ public class App extends Tree implements Derivable {
         }
 
         @Override
-        public List<Tree> rightInverse(Environment env, Tree result) {
+        public List<Tree> rightInverse(Environment env, @NotNull Tree result) {
             if(!(result instanceof App)) {
                 return null;
             }
@@ -63,7 +64,7 @@ public class App extends Tree implements Derivable {
     public static final Fold<List<Tree>, Tree, List<Tree>> APPLY_TUPEL = new Fold<List<Tree>, Tree, List<Tree>>() {
 
         @Override
-        public List<Tree> apply(Environment environment, ParserStream parserStream, List<Tree> args, Tree tree) {
+        public List<Tree> apply(Environment environment, ParserStream parserStream, List<Tree> args, @NotNull Tree tree) {
             ArrayList<Tree> appArgs = new ArrayList<>(args.size());
 
             appArgs.addAll(args.stream().map(arg -> new App(parserStream.createSourceInfo(), arg, tree)).collect(Collectors.toList()));
@@ -73,13 +74,13 @@ public class App extends Tree implements Derivable {
         }
 
         @Override
-        public List<Tree> leftInverse(Environment env, List<Tree> result) {
+        public List<Tree> leftInverse(Environment env, @NotNull List<Tree> result) {
             // it is handled by other rules
             return null;
         }
 
         @Override
-        public Tree rightInverse(Environment env, List<Tree> result) {
+        public Tree rightInverse(Environment env, @NotNull List<Tree> result) {
             return null;
         }
     };

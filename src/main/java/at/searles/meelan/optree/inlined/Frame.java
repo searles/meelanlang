@@ -3,7 +3,6 @@ package at.searles.meelan.optree.inlined;
 import at.searles.meelan.MeelanException;
 import at.searles.meelan.compiler.Executable;
 import at.searles.meelan.optree.Tree;
-import at.searles.meelan.parser.DummyInfo;
 import at.searles.meelan.symbols.IdResolver;
 import at.searles.meelan.symbols.SymTable;
 import at.searles.meelan.types.BaseType;

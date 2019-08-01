@@ -7,12 +7,10 @@ import at.searles.meelan.symbols.IdResolver;
 import at.searles.meelan.symbols.SymTable;
 import at.searles.meelan.values.Int;
 import at.searles.parsing.Environment;
-import at.searles.parsing.Fold;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.AstNode;
 import at.searles.parsing.utils.ast.SourceInfo;
-import at.searles.utils.GenericBuilder;
-import at.searles.utils.Pair;
+import at.searles.utils.GenericStruct;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,7 +61,7 @@ public class ForEach extends Tree {
         return "foreach" + children().map(AstNode::toString).collect(Collectors.joining(", "));
     }
 
-    public static class Builder extends GenericBuilder<Builder, ForEach> {
+    public static class Builder extends GenericStruct<Builder> {
 
         public String varName;
         public Tree vector;

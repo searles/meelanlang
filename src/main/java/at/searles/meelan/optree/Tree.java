@@ -3,7 +3,6 @@ package at.searles.meelan.optree;
 import at.searles.meelan.*;
 import at.searles.meelan.compiler.Executable;
 import at.searles.meelan.ops.arithmetics.Mul;
-import at.searles.meelan.optree.inlined.ExternDeclaration;
 import at.searles.meelan.optree.inlined.Frame;
 import at.searles.meelan.symbols.*;
 import at.searles.meelan.types.BaseType;
@@ -18,6 +17,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public abstract class Tree extends AstNode {
+
+    // FIXME use head.applyArgs(App app) without preprocessing arguments
+    // FIXME make While/IfElse instructions
 
     /**
      * Type set later during semantic analysis
@@ -87,6 +89,7 @@ public abstract class Tree extends AstNode {
     public Tree member(SourceInfo info, String memberId) throws MeelanException {
         throw new MeelanException(String.format("No such member: %s", memberId), this);
     }
+
 
 
     public void linearizeStmt(Executable program) throws MeelanException {

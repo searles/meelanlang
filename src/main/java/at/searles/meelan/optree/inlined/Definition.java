@@ -10,7 +10,8 @@ import at.searles.parsing.Environment;
 import at.searles.parsing.Fold;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
-import at.searles.utils.GenericBuilder;
+import at.searles.utils.GenericStruct;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -19,17 +20,17 @@ public class Definition extends Tree {
 
     public static final Fold<String, Tree, Tree> CREATE = new Fold<String, Tree, Tree>() {
         @Override
-        public Tree apply(Environment env, ParserStream stream, String left, Tree right) {
+        public Tree apply(Environment env, ParserStream stream, @NotNull String left, @NotNull Tree right) {
             return new Definition(stream.createSourceInfo(), left, right);
         }
 
         @Override
-        public String leftInverse(Environment env, Tree result) {
+        public String leftInverse(Environment env, @NotNull Tree result) {
             return result instanceof Definition ? ((Definition) result).id : null;
         }
 
         @Override
-        public Tree rightInverse(Environment env, Tree result) {
+        public Tree rightInverse(Environment env, @NotNull Tree result) {
             return result instanceof Definition ? ((Definition) result).expr : null;
         }
     };
@@ -64,7 +65,7 @@ public class Definition extends Tree {
         return null;
     }
 
-    public static class FuncBuilder extends GenericBuilder<FuncBuilder, Definition> {
+    public static class FuncBuilder extends GenericStruct<FuncBuilder> {
         public String id;
         public List<String> args;
         public Tree body;
@@ -90,7 +91,7 @@ public class Definition extends Tree {
         }
     }
 
-    public static class TemplateBuilder extends GenericBuilder<TemplateBuilder, Definition> {
+    public static class TemplateBuilder extends GenericStruct<TemplateBuilder> {
         public String id;
         public List<String> args;
         public Tree body;

@@ -12,11 +12,9 @@ import at.searles.meelan.values.Label;
 import at.searles.meelan.values.Reg;
 import at.searles.meelan.values.Value;
 import at.searles.parsing.Environment;
-import at.searles.parsing.Fold;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
-import at.searles.utils.GenericBuilder;
-import at.searles.utils.Pair;
+import at.searles.utils.GenericStruct;
 
 import java.util.stream.Stream;
 
@@ -169,12 +167,11 @@ public class IfElse extends Tree {
         elsePart.linearizeBool(trueLabel, falseLabel, program); // FIXME
     }
 
-    public static class Builder extends GenericBuilder<Builder, IfElse> {
+    public static class Builder extends GenericStruct<Builder> {
         public Tree condition;
         public Tree thenPart;
         public Tree elsePart; // may be null
 
-        @Override
         public IfElse build(Environment env, ParserStream stream) {
             return new IfElse(stream.createSourceInfo(), condition, thenPart, elsePart);
         }

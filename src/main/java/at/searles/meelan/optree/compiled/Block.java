@@ -71,6 +71,7 @@ public class Block extends Tree implements Iterable<Tree> {
         return inner.commit();
     }
 
+    @NotNull
     @Override
     public Iterator<Tree> iterator() {
         return stmts.iterator();
