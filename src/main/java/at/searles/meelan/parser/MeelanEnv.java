@@ -30,4 +30,8 @@ public class MeelanEnv implements Environment {
             throw new MeelanException("Extern with this id is already defined", decl);
         }
     }
+
+    public Map<String, ExternDeclaration> getExternDecls() {
+        return externDecls;
+    }
 }
