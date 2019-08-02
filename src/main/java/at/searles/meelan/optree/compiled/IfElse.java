@@ -69,7 +69,7 @@ public class IfElse extends Tree {
         Tree thenInlined = thenPart.preprocessor(table, resolver, frameBuilder);
 
         if(elsePart == null) {
-            return new IfElse(sourceInfo(), inlineCond, thenInlined, null);
+            return new IfElse(sourceInfo(), inlineCond, thenInlined, null, BaseType.unit);
         }
 
         // make types match in "then" and "else"
