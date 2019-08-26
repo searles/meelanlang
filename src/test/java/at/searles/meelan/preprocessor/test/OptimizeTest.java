@@ -6,7 +6,6 @@ import at.searles.meelan.MeelanException;
 import at.searles.meelan.compiler.Ast;
 import at.searles.meelan.compiler.Executable;
 import at.searles.meelan.optree.Tree;
-import at.searles.parsing.Environment;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.Recognizable;
 import at.searles.parsing.printing.ConcreteSyntaxTree;
@@ -26,20 +25,8 @@ public class OptimizeTest {
     private void setSource(String program) {
         this.source = program;
 
-        Environment env = new Environment() {
-            @Override
-            public void notifyNoMatch(ParserStream stream, Recognizable.Then failedParser) {
-                throw new IllegalArgumentException();
-            }
-
-            @Override
-            public void notifyLeftPrintFailed(ConcreteSyntaxTree rightTree, Recognizable.Then failed) {
-                throw new IllegalArgumentException();
-            }
-        };
-
         ParserStream stream = new ParserStream(TokStream.fromString(source));
-        this.ast = Ast.parse(env, stream);
+        this.ast = Ast.parse(stream);
     }
 
     private void actRunPreprocessor() throws MeelanException {

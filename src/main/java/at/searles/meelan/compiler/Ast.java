@@ -7,15 +7,14 @@ import at.searles.meelan.optree.compiled.Block;
 import at.searles.meelan.optree.inlined.Frame;
 import at.searles.meelan.parser.MeelanParser;
 import at.searles.meelan.symbols.*;
-import at.searles.parsing.Environment;
 import at.searles.parsing.ParserStream;
 
 import java.util.List;
 
 public class Ast {
 
-    public static Ast parse(Environment env, ParserStream input) {
-        List<Tree> ast = MeelanParser.stmts().parse(env, input);
+    public static Ast parse(ParserStream input) {
+        List<Tree> ast = MeelanParser.stmts().parse(input);
         return new Ast(new Block(input.createSourceInfo(), ast));
     }
 

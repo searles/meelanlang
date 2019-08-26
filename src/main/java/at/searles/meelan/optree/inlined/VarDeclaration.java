@@ -6,7 +6,6 @@ import at.searles.meelan.optree.compiled.Assign;
 import at.searles.meelan.symbols.IdResolver;
 import at.searles.meelan.symbols.SymTable;
 import at.searles.meelan.types.BaseType;
-import at.searles.parsing.Environment;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
 import at.searles.utils.GenericStruct;
@@ -15,12 +14,12 @@ import java.util.stream.Stream;
 public class VarDeclaration extends Tree {
 //    public static final Mapping<Triple<String, Optional<String>, Optional<Tree>>, Tree> CREATE = new Mapping<Triple<String, Optional<String>, Optional<Tree>>, Tree>() {
 //        @Override
-//        public Tree parse(Environment env, Triple<String, Optional<String>, Optional<Tree>> left, ParserStream stream) {
+//        public Tree parse(Triple<String, Optional<String>, Optional<Tree>> left, ParserStream stream) {
 //            return new VarDeclaration(left.l(), left.m().orElse(null), left.r().orElse(null));
 //        }
 //
 //        @Override
-//        public Triple<String, Optional<String>, Optional<Tree>> left(Environment env, Tree result) {
+//        public Triple<String, Optional<String>, Optional<Tree>> left(Tree result) {
 //            if(!(result instanceof VarDeclaration)) {
 //                return null;
 //            }
@@ -102,7 +101,7 @@ public class VarDeclaration extends Tree {
             return builder;
         }
 
-        public VarDeclaration build(Environment env, ParserStream stream) {
+        public VarDeclaration build(ParserStream stream) {
             return new VarDeclaration(stream.createSourceInfo(),
                     id, type, value);
         }

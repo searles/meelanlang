@@ -9,7 +9,6 @@ import at.searles.meelan.types.BaseType;
 import at.searles.meelan.values.Label;
 import at.searles.meelan.values.Reg;
 import at.searles.meelan.values.Value;
-import at.searles.parsing.Environment;
 import at.searles.parsing.Mapping;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
@@ -26,12 +25,12 @@ import java.util.stream.Stream;
 public class Vec extends Tree implements Iterable<Tree> {
     public static final Mapping<List<Tree>, Tree> CREATOR = new Mapping<List<Tree>, Tree>() {
         @Override
-        public Tree parse(Environment env, ParserStream stream, @NotNull List<Tree> left) {
+        public Tree parse(ParserStream stream, @NotNull List<Tree> left) {
             return new Vec(stream.createSourceInfo(), left);
         }
 
         @Override
-        public List<Tree> left(Environment env, @NotNull Tree result) {
+        public List<Tree> left(@NotNull Tree result) {
             return result instanceof Vec ? ((Vec) result).values() : null;
         }
     };

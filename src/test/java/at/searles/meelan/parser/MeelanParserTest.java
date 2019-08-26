@@ -1,7 +1,6 @@
 package at.searles.meelan.parser;
 
 import at.searles.lexer.TokStream;
-import at.searles.parsing.Environment;
 import at.searles.parsing.Parser;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.printing.ConcreteSyntaxTree;
@@ -15,11 +14,6 @@ import org.junit.Test;
  * Basic parser tests
  */
 public class MeelanParserTest {
-
-    @Before
-    public void setUp() {
-        env = new MeelanEnv();
-    }
 
     @Test
     public void testInt() {
@@ -771,13 +765,11 @@ public class MeelanParserTest {
 
     private MeelanParser parser;
 
-    private Environment env;
-
     private String input;
     private String result;
 
     private <A> String outString(Parser<A> parser, A result) {
-        ConcreteSyntaxTree tree = parser.print(env, result);
+        ConcreteSyntaxTree tree = parser.print(result);
 
         Assert.assertNotNull(tree);
 
@@ -789,15 +781,13 @@ public class MeelanParserTest {
     }
 
     private <A> String check(Parser<A> parser, String input) {
-        A result = parser.parse(env, new ParserStream(TokStream.fromString(input)));
+        A result = parser.parse(new MeelanStream(TokStream.fromString(input)));
 
         Assert.assertNotNull(result);
 
         String outString = outString(parser, result);
 
-        env = new MeelanEnv(); // reset env.
-
-        A verifiedResult = parser.parse(env, new ParserStream(TokStream.fromString(input)));
+        A verifiedResult = parser.parse(new MeelanStream(TokStream.fromString(input)));
 
         String checkOutString = outString(parser, verifiedResult);
 

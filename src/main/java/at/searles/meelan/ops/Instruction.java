@@ -10,7 +10,6 @@ import at.searles.meelan.types.BaseType;
 import at.searles.meelan.values.Label;
 import at.searles.meelan.values.Reg;
 import at.searles.meelan.values.Value;
-import at.searles.parsing.Environment;
 import at.searles.parsing.Fold;
 import at.searles.parsing.Mapping;
 import at.searles.parsing.ParserStream;
@@ -91,12 +90,12 @@ public abstract class Instruction extends Tree {
     public static Mapping<Tree, Tree> unary(Instruction instruction) {
         return new Mapping<Tree, Tree>() {
             @Override
-            public Tree parse(Environment env, ParserStream stream, @NotNull Tree left) {
+            public Tree parse(ParserStream stream, @NotNull Tree left) {
                 return new App(stream.createSourceInfo(), instruction, Collections.singletonList(left)); // todo check
             }
 
             @Override
-            public Tree left(Environment env, @NotNull Tree result) {
+            public Tree left(@NotNull Tree result) {
                 if(!(result instanceof App)) {
                     return null;
                 }
@@ -124,7 +123,7 @@ public abstract class Instruction extends Tree {
     public static Fold<Tree, Tree, Tree> binary(Instruction instruction) {
         return new Fold<Tree, Tree, Tree>() {
             @Override
-            public Tree apply(Environment env, ParserStream stream, @NotNull Tree left, @NotNull Tree right) {
+            public Tree apply(ParserStream stream, @NotNull Tree left, @NotNull Tree right) {
                 return new App(stream.createSourceInfo(), instruction, Arrays.asList(left, right));
             }
 
@@ -136,12 +135,12 @@ public abstract class Instruction extends Tree {
             }
 
             @Override
-            public Tree leftInverse(Environment env, @NotNull Tree result) {
+            public Tree leftInverse(@NotNull Tree result) {
                 return canInvert(result) ? ((App) result).args().get(0) : null;
             }
 
             @Override
-            public Tree rightInverse(Environment env, @NotNull Tree result) {
+            public Tree rightInverse(@NotNull Tree result) {
                 return canInvert(result) ? ((App) result).args().get(1) : null;
             }
 
@@ -155,12 +154,12 @@ public abstract class Instruction extends Tree {
     public static Mapping<List<Tree>, Tree> app(Instruction instr) {
         return new Mapping<List<Tree>, Tree>() {
             @Override
-            public Tree parse(Environment env, ParserStream stream, @NotNull List<Tree> left) {
+            public Tree parse(ParserStream stream, @NotNull List<Tree> left) {
                 return new App(stream.createSourceInfo(), instr, left); // TODO check
             }
 
             @Override
-            public List<Tree> left(Environment env, @NotNull Tree result) {
+            public List<Tree> left(@NotNull Tree result) {
                 if(!(result instanceof App)) {
                     return null;
                 }

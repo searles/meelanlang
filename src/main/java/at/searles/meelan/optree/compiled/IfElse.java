@@ -11,7 +11,6 @@ import at.searles.meelan.values.Bool;
 import at.searles.meelan.values.Label;
 import at.searles.meelan.values.Reg;
 import at.searles.meelan.values.Value;
-import at.searles.parsing.Environment;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
 import at.searles.utils.GenericStruct;
@@ -172,7 +171,7 @@ public class IfElse extends Tree {
         public Tree thenPart;
         public Tree elsePart; // may be null
 
-        public IfElse build(Environment env, ParserStream stream) {
+        public IfElse build(ParserStream stream) {
             return new IfElse(stream.createSourceInfo(), condition, thenPart, elsePart);
         }
 

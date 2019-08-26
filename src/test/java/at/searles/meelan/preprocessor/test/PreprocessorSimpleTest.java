@@ -10,7 +10,6 @@ import at.searles.meelan.optree.inlined.Id;
 import at.searles.meelan.optree.inlined.Lambda;
 import at.searles.meelan.parser.DummyInfo;
 import at.searles.meelan.values.Int;
-import at.searles.parsing.Environment;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.Recognizable;
 import at.searles.parsing.printing.ConcreteSyntaxTree;
@@ -32,20 +31,8 @@ public class PreprocessorSimpleTest {
     private void setSource(String program) {
         this.source = program;
 
-        Environment env = new Environment() {
-            @Override
-            public void notifyNoMatch(ParserStream stream, Recognizable.Then failedParser) {
-                throw new IllegalArgumentException();
-            }
-
-            @Override
-            public void notifyLeftPrintFailed(ConcreteSyntaxTree rightTree, Recognizable.Then failed) {
-                throw new IllegalArgumentException();
-            }
-        };
-
         ParserStream stream = new ParserStream(TokStream.fromString(source));
-        this.ast = Ast.parse(env, stream);
+        this.ast = Ast.parse(stream);
     }
 
     private void actRunPreprocessor() throws MeelanException {

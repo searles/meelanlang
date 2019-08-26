@@ -66,32 +66,32 @@ public class MeelanParser {
 
     private void initLexer() {
         this.lexer = new LexerWithHidden();
-        lexer.hiddenToken(r("[\n\r\t ]+"));
-        lexer.hiddenToken(r("('//'.*'\n')!"));
-        lexer.hiddenToken(r("('/*'.*'*/')!"));
+        lexer.addHiddenToken(r("[\n\r\t ]+"));
+        lexer.addHiddenToken(r("('//'.*'\n')!"));
+        lexer.addHiddenToken(r("('/*'.*'*/')!"));
     }
 
     private void initParser() {
         Parser<String> idString = Parser.fromToken(lexer.token(r("[A-Za-z_][0-9A-Za-z_]*")), new Mapping<CharSequence, String>() {
             @Override
-            public String parse(Environment env, ParserStream stream, @NotNull CharSequence left) {
+            public String parse(ParserStream stream, @NotNull CharSequence left) {
                 return left.toString();
             }
 
             @Override
-            public CharSequence left(Environment env, @NotNull String result) {
+            public CharSequence left(@NotNull String result) {
                 return result;
             }
         }, true);
 
         Parser<String> quoted = Parser.fromToken(lexer.token(r("('\"'.*'\"')!")), new Mapping<CharSequence, String>() {
             @Override
-            public String parse(Environment env, ParserStream stream, @NotNull CharSequence left) {
+            public String parse(ParserStream stream, @NotNull CharSequence left) {
                 return left.toString().substring(1, left.length() - 1);
             }
 
             @Override
-            public CharSequence left(Environment env, @NotNull String result) {
+            public CharSequence left(@NotNull String result) {
                 return "\"" + result + "\"";
             }
         }, true);

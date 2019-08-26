@@ -6,7 +6,6 @@ import at.searles.meelan.optree.compiled.Block;
 import at.searles.meelan.parser.DummyInfo;
 import at.searles.meelan.symbols.IdResolver;
 import at.searles.meelan.symbols.SymTable;
-import at.searles.parsing.Environment;
 import at.searles.parsing.Fold;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
@@ -20,17 +19,17 @@ public class Definition extends Tree {
 
     public static final Fold<String, Tree, Tree> CREATE = new Fold<String, Tree, Tree>() {
         @Override
-        public Tree apply(Environment env, ParserStream stream, @NotNull String left, @NotNull Tree right) {
+        public Tree apply(ParserStream stream, @NotNull String left, @NotNull Tree right) {
             return new Definition(stream.createSourceInfo(), left, right);
         }
 
         @Override
-        public String leftInverse(Environment env, @NotNull Tree result) {
+        public String leftInverse(@NotNull Tree result) {
             return result instanceof Definition ? ((Definition) result).id : null;
         }
 
         @Override
-        public Tree rightInverse(Environment env, @NotNull Tree result) {
+        public Tree rightInverse(@NotNull Tree result) {
             return result instanceof Definition ? ((Definition) result).expr : null;
         }
     };
@@ -70,7 +69,7 @@ public class Definition extends Tree {
         public List<String> args;
         public Tree body;
 
-        public Definition build(Environment env, ParserStream parserStream) {
+        public Definition build(ParserStream parserStream) {
             Lambda l = new Lambda(parserStream.createSourceInfo(), args, body);
             return new Definition(parserStream.createSourceInfo(), id, l);
         }
@@ -96,7 +95,7 @@ public class Definition extends Tree {
         public List<String> args;
         public Tree body;
 
-        public Definition build(Environment env, ParserStream parserStream) {
+        public Definition build(ParserStream parserStream) {
             Template t = new Template(parserStream.createSourceInfo(), args, ((Block) body).stmts());
             return new Definition(parserStream.createSourceInfo(), id, t);
 

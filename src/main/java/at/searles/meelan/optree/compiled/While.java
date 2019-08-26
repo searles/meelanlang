@@ -8,7 +8,6 @@ import at.searles.meelan.optree.inlined.Frame;
 import at.searles.meelan.symbols.*;
 import at.searles.meelan.types.BaseType;
 import at.searles.meelan.values.Label;
-import at.searles.parsing.Environment;
 import at.searles.parsing.Fold;
 import at.searles.parsing.Mapping;
 import at.searles.parsing.ParserStream;
@@ -22,12 +21,12 @@ public class While extends Tree {
 
     public static final Mapping<Tree, Tree> CREATE = new Mapping<Tree, Tree>() {
         @Override
-        public Tree parse(Environment env, ParserStream stream, @NotNull Tree left) {
+        public Tree parse(ParserStream stream, @NotNull Tree left) {
             return new While(stream.createSourceInfo(), left, null);
         }
 
         @Override
-        public Tree left(Environment env, @NotNull Tree result) {
+        public Tree left(@NotNull Tree result) {
             if(!(result instanceof While) || ((While) result).body != null) {
                 return null;
             }
@@ -38,12 +37,12 @@ public class While extends Tree {
 
     public static final Fold<Tree, Tree, Tree> CREATE_DO = new Fold<Tree, Tree, Tree>() {
         @Override
-        public Tree apply(Environment env, ParserStream stream, @NotNull Tree left, @NotNull Tree right) {
+        public Tree apply(ParserStream stream, @NotNull Tree left, @NotNull Tree right) {
             return new While(stream.createSourceInfo(), left, right);
         }
 
         @Override
-        public Tree leftInverse(Environment env, @NotNull Tree result) {
+        public Tree leftInverse(@NotNull Tree result) {
             if(!(result instanceof While) || ((While) result).body == null) {
                 return null;
             }
@@ -52,7 +51,7 @@ public class While extends Tree {
         }
 
         @Override
-        public Tree rightInverse(Environment env, @NotNull Tree result) {
+        public Tree rightInverse(@NotNull Tree result) {
             if(!(result instanceof While) || ((While) result).body == null) {
                 return null;
             }

@@ -7,7 +7,6 @@ import at.searles.meelan.ops.SystemType;
 import at.searles.meelan.optree.Tree;
 import at.searles.meelan.parser.DummyInfo;
 import at.searles.meelan.types.BaseType;
-import at.searles.parsing.Environment;
 import at.searles.parsing.Mapping;
 import at.searles.parsing.ParserStream;
 import org.jetbrains.annotations.NotNull;
@@ -18,12 +17,12 @@ public class Real extends Const /*implements RealConst, CplxConst, QuatConst*/ {
 
     public static final Mapping<CharSequence, Tree> TOK = new Mapping<CharSequence, Tree>() {
         @Override
-        public Tree parse(Environment env, ParserStream stream, CharSequence left) {
+        public Tree parse(ParserStream stream, CharSequence left) {
             return new Real(Double.parseDouble(left.toString()));
         }
 
         @Override
-        public CharSequence left(Environment env, @NotNull Tree result) {
+        public CharSequence left(@NotNull Tree result) {
             return result instanceof Real ? Double.toString(((Real) result).value()) : null;
         }
     };

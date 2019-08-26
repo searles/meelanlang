@@ -1,11 +1,10 @@
 package at.searles.meelan.optree.inlined;
 
 import at.searles.meelan.optree.Tree;
-import at.searles.meelan.parser.MeelanEnv;
+import at.searles.meelan.parser.MeelanStream;
 import at.searles.meelan.symbols.IdResolver;
 import at.searles.meelan.symbols.SymTable;
 import at.searles.meelan.types.BaseType;
-import at.searles.parsing.Environment;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
 import at.searles.utils.GenericStruct;
@@ -54,9 +53,9 @@ public class ExternDeclaration extends Tree {
 
         public Tree value;
 
-        public ExternDeclaration build(Environment env, ParserStream stream) {
+        public ExternDeclaration build(ParserStream stream) {
             ExternDeclaration decl = new ExternDeclaration(stream.createSourceInfo(), id, type, description, value);
-            ((MeelanEnv) env).registerExternDecl(decl);
+            ((MeelanStream) stream).registerExternDecl(decl);
             return decl;
         }
 

@@ -4,7 +4,6 @@ import at.searles.commons.strings.StringQuote;
 import at.searles.meelan.optree.Tree;
 import at.searles.meelan.parser.DummyInfo;
 import at.searles.meelan.types.BaseType;
-import at.searles.parsing.Environment;
 import at.searles.parsing.Mapping;
 import at.searles.parsing.ParserStream;
 import org.jetbrains.annotations.NotNull;
@@ -15,12 +14,12 @@ public class StringVal extends Const {
 
     public static final Mapping<CharSequence, Tree> TOK = new Mapping<CharSequence, Tree>() {
         @Override
-        public Tree parse(Environment env, ParserStream stream, CharSequence left) {
+        public Tree parse(ParserStream stream, CharSequence left) {
             return new StringVal(StringQuote.unquote(left.toString()));
         }
 
         @Override
-        public CharSequence left(Environment env, @NotNull Tree result) {
+        public CharSequence left(@NotNull Tree result) {
             return result instanceof StringVal ? StringQuote.quote(((StringVal) result).value()) : null;
         }
     };

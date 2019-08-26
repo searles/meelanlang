@@ -1,9 +1,9 @@
 package at.searles.meelan.parser;
 
+import at.searles.lexer.TokStream;
 import at.searles.meelan.MeelanException;
 import at.searles.meelan.ParsingException;
 import at.searles.meelan.optree.inlined.ExternDeclaration;
-import at.searles.parsing.Environment;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.Recognizable;
 import at.searles.parsing.printing.ConcreteSyntaxTree;
@@ -11,18 +11,12 @@ import at.searles.parsing.printing.ConcreteSyntaxTree;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class MeelanEnv implements Environment {
+public class MeelanStream extends ParserStream {
 
     private Map<String, ExternDeclaration> externDecls = new LinkedHashMap<>();
 
-    @Override
-    public void notifyNoMatch(ParserStream stream, Recognizable.Then failedParser) {
-        throw new ParsingException("parsing error", stream, failedParser);
-    }
-
-    @Override
-    public void notifyLeftPrintFailed(ConcreteSyntaxTree rightTree, Recognizable.Then failed) {
-
+    public MeelanStream(TokStream stream) {
+        super(stream);
     }
 
     public void registerExternDecl(ExternDeclaration decl) {

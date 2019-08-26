@@ -7,7 +7,6 @@ import at.searles.meelan.optree.inlined.Frame;
 import at.searles.meelan.symbols.*;
 import at.searles.meelan.types.BaseType;
 import at.searles.meelan.values.Reg;
-import at.searles.parsing.Environment;
 import at.searles.parsing.Fold;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
@@ -18,17 +17,17 @@ import java.util.stream.Stream;
 public class Assign extends Tree {
     public static final Fold<Tree, Tree, Tree> CREATE = new Fold<Tree, Tree, Tree>() {
         @Override
-        public Tree apply(Environment env, ParserStream stream, @NotNull Tree left, @NotNull Tree right) {
+        public Tree apply(ParserStream stream, @NotNull Tree left, @NotNull Tree right) {
             return new Assign(stream.createSourceInfo(), left, right);
         }
 
         @Override
-        public Tree leftInverse(Environment env, @NotNull Tree result) {
+        public Tree leftInverse(@NotNull Tree result) {
             return result instanceof Assign ? ((Assign) result).lv : null;
         }
 
         @Override
-        public Tree rightInverse(Environment env, @NotNull Tree result) {
+        public Tree rightInverse(@NotNull Tree result) {
             return result instanceof Assign ? ((Assign) result).rv : null;
         }
     };

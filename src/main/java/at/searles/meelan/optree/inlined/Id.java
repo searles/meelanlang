@@ -4,7 +4,6 @@ import at.searles.meelan.MeelanException;
 import at.searles.meelan.optree.Tree;
 import at.searles.meelan.symbols.IdResolver;
 import at.searles.meelan.symbols.SymTable;
-import at.searles.parsing.Environment;
 import at.searles.parsing.Mapping;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
@@ -17,12 +16,12 @@ public class Id extends Tree {
 
     public static final Mapping<CharSequence, Tree> TOK = new Mapping<CharSequence, Tree>() {
         @Override
-        public Tree parse(Environment env, ParserStream stream, CharSequence left) {
+        public Tree parse(ParserStream stream, CharSequence left) {
             return new Id(stream.createSourceInfo(), left.toString());
         }
 
         @Override
-        public CharSequence left(Environment env, @NotNull Tree result) {
+        public CharSequence left(@NotNull Tree result) {
             return result instanceof Id ? ((Id) result).id : null;
         }
 

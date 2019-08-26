@@ -7,7 +7,6 @@ import at.searles.meelan.symbols.IdResolver;
 import at.searles.meelan.symbols.SymTable;
 import at.searles.meelan.values.Reg;
 import at.searles.meelan.values.Value;
-import at.searles.parsing.Environment;
 import at.searles.parsing.Fold;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
@@ -22,7 +21,7 @@ public class Qualified extends Tree {
 
     public static final Fold<Tree, String, Tree> CREATOR = new Fold<Tree, String, Tree>() {
         @Override
-        public Tree apply(Environment env, ParserStream stream, @NotNull Tree left, @NotNull String right) {
+        public Tree apply(ParserStream stream, @NotNull Tree left, @NotNull String right) {
             return new Qualified(stream.createSourceInfo(), left, right);
         }
 
@@ -31,7 +30,7 @@ public class Qualified extends Tree {
         }
 
         @Override
-        public Tree leftInverse(Environment env, @NotNull Tree result) {
+        public Tree leftInverse(@NotNull Tree result) {
             if(cannotInvert(result)) {
                 return null;
             }
@@ -40,7 +39,7 @@ public class Qualified extends Tree {
         }
 
         @Override
-        public String rightInverse(Environment env, @NotNull Tree result) {
+        public String rightInverse(@NotNull Tree result) {
             if(cannotInvert(result)) {
                 return null;
             }

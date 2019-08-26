@@ -4,7 +4,6 @@ import at.searles.meelan.*;
 import at.searles.meelan.optree.Tree;
 import at.searles.meelan.optree.inlined.Frame;
 import at.searles.meelan.symbols.*;
-import at.searles.parsing.Environment;
 import at.searles.parsing.Mapping;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
@@ -19,12 +18,12 @@ public class Block extends Tree implements Iterable<Tree> {
     public static final Mapping<List<Tree>, Tree> CREATOR = new Mapping<List<Tree>, Tree>() {
 
         @Override
-        public Tree parse(Environment env, ParserStream stream, @NotNull List<Tree> left) {
+        public Tree parse(ParserStream stream, @NotNull List<Tree> left) {
             return new Block(stream.createSourceInfo(), left);
         }
 
         @Override
-        public List<Tree> left(Environment env, @NotNull Tree result) {
+        public List<Tree> left(@NotNull Tree result) {
             return result instanceof Block ? ((Block) result).stmts() : null;
         }
     };

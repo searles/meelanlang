@@ -6,7 +6,6 @@ import at.searles.meelan.optree.compiled.*;
 import at.searles.meelan.symbols.IdResolver;
 import at.searles.meelan.symbols.SymTable;
 import at.searles.meelan.values.Int;
-import at.searles.parsing.Environment;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.AstNode;
 import at.searles.parsing.utils.ast.SourceInfo;
@@ -67,7 +66,7 @@ public class ForEach extends Tree {
         public Tree vector;
         public Tree body;
 
-        public ForEach build(Environment env, ParserStream stream) {
+        public ForEach build(ParserStream stream) {
             return new ForEach(stream.createSourceInfo(), varName, vector, body);
         }
 
