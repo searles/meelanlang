@@ -49,12 +49,12 @@ public class MeelanPrinter extends CstPrinter {
 
     @Override
     public CstPrinter print(ConcreteSyntaxTree tree, Object annotation) {
-        switch ((LabelIds) annotation) {
+        switch ((MeelanParser.Annotation) annotation) {
             case SEPARATOR:
                 print(tree);
                 space();
                 break;
-            case SPACING_BEFORE:
+            case BREAK:
                 space();
                 print(tree);
                 break;
@@ -80,13 +80,13 @@ public class MeelanPrinter extends CstPrinter {
                 // space();
                 print(tree);
                 break;
-            case INSIDE_BLOCK:
+            case IN_BLOCK:
                 newline();
                 indent();
                 print(tree);
                 unindent();
                 break;
-            case STMT_END:
+            case STMT:
                 print(tree);
                 newline();
                 break;
