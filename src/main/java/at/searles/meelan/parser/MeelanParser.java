@@ -40,6 +40,10 @@ public class MeelanParser {
         return Holder.INSTANCE.expr;
     }
 
+    public static Recognizer eof() {
+        return Holder.INSTANCE.eof;
+    }
+
     public static int whiteSpace() {
         return Holder.INSTANCE.wsId;
     }
@@ -57,6 +61,7 @@ public class MeelanParser {
     private Parser<List<Tree>> stmts;
     private Parser<Tree> expr;
     private Parser<Tree> stmt;
+    private Recognizer eof;
 
     private int mlCommentId;
     private int slCommentId;
@@ -79,6 +84,7 @@ public class MeelanParser {
     private MeelanParser() {
         initLexer();
         initParser();
+        this.eof = Recognizer.eof(lexer);
     }
 
     private Regex r(String regex) {
