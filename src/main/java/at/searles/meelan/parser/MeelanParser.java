@@ -72,7 +72,8 @@ public class MeelanParser {
         SEPARATOR, // separates two elements. Usually spacing after separator
         BREAK,
         KEYWORD_INFIX,
-        KEYWORD_HEAD
+        KEYWORD_PREFIX,
+        KEYWORD_DEF,
     }
 
     private MeelanParser() {
@@ -185,8 +186,8 @@ public class MeelanParser {
         Ref<Tree> unexprRef = new Ref<>("unexpr");
 
         Parser<Tree> unexpr =
-                op("-", Annotation.KEYWORD_HEAD).then(unexprRef).then(Instruction.unary(Neg.get()))
-                .or(op("/", Annotation.KEYWORD_HEAD).then(unexprRef).then(Instruction.unary(Recip.get())))
+                op("-", Annotation.KEYWORD_PREFIX).then(unexprRef).then(Instruction.unary(Neg.get()))
+                .or(op("/", Annotation.KEYWORD_PREFIX).then(unexprRef).then(Instruction.unary(Recip.get())))
                 .or(term);
 
         unexprRef.set(unexpr);
@@ -246,7 +247,7 @@ public class MeelanParser {
         Ref<Tree> literalRef = new Ref<>("literal");
 
         Parser<Tree> literal =
-                op("not", Annotation.KEYWORD_HEAD).then(literalRef).then(Instruction.unary(Not.get()))
+                op("not", Annotation.KEYWORD_PREFIX).then(literalRef).then(Instruction.unary(Not.get()))
                 .or(compexpr);
 
         literalRef.set(literal);
@@ -269,12 +270,12 @@ public class MeelanParser {
 
         Ref<Tree> stmtRef = new Ref<>("stmt");
 
-        Parser<Tree> whilestmt= op("while", Annotation.KEYWORD_HEAD).then(expr).then(
+        Parser<Tree> whilestmt= op("while", Annotation.KEYWORD_PREFIX).then(expr).then(
                 op("do", Annotation.KEYWORD_INFIX).then(stmtRef.fold(While.CREATE_DO))
                         .or(While.CREATE));
 
         Parser<Tree> forstmt =
-                op("for", Annotation.KEYWORD_HEAD)
+                op("for", Annotation.KEYWORD_PREFIX)
                 .then(Utils.builder(ForEach.Builder.class))
                 .then(Utils.setter("varName", idString))
                 .then(op("in", Annotation.KEYWORD_INFIX))
@@ -283,7 +284,7 @@ public class MeelanParser {
                 .then(Utils.setter("body", stmtRef))
                 .then(Utils.build(ForEach.Builder.class));
 
-        Parser<Tree> ifstmt = op("if", Annotation.KEYWORD_HEAD)
+        Parser<Tree> ifstmt = op("if", Annotation.KEYWORD_PREFIX)
                 .then(Utils.builder(IfElse.Builder.class))
                 .then(Utils.setter("condition", expr))
                 .then(op("then", Annotation.KEYWORD_INFIX))
@@ -303,7 +304,7 @@ public class MeelanParser {
         // now for declarations
 
         Parser<Tree> externDef =
-                op("extern", Annotation.KEYWORD_HEAD)
+                op("extern", Annotation.KEYWORD_DEF)
                 .then(Utils.builder(ExternDeclaration.Builder.class))
                 .then(Utils.setter("id", idString))
                 .then(Utils.setter("type", idString.annotate(Annotation.BREAK)))
@@ -317,7 +318,7 @@ public class MeelanParser {
                 .then(op(")")));
 
         Parser<Tree> funcDef =
-                op("func", Annotation.KEYWORD_HEAD)
+                op("func", Annotation.KEYWORD_DEF)
                 .then(Utils.builder(Definition.FuncBuilder.class))
                 .then(Utils.setter("id", idString))
                 .then(Utils.setter("args", arguments))
@@ -327,7 +328,7 @@ public class MeelanParser {
         Parser<List<String>> possiblyEmptyArguments = arguments.or(Utils.empty());
 
         Parser<Tree> templateDef =
-                op("template", Annotation.KEYWORD_HEAD)
+                op("template", Annotation.KEYWORD_DEF)
                 .then(Utils.builder(Definition.TemplateBuilder.class))
                 .then(Utils.setter("id", idString))
                 .then(Utils.setter("args", possiblyEmptyArguments))
@@ -335,7 +336,7 @@ public class MeelanParser {
                 .then(Utils.build(Definition.TemplateBuilder.class));
 
         Parser<Tree> definition =
-                op("def", Annotation.KEYWORD_HEAD)
+                op("def", Annotation.KEYWORD_DEF)
                 .then(idString)
                 .then(op("=", Annotation.KEYWORD_INFIX))
                 .then(expr.fold(Definition.CREATE));
@@ -353,7 +354,7 @@ public class MeelanParser {
                 .then(Utils.build(VarDeclaration.Builder.class));
 
         Reducer<List<Tree>, List<Tree>> vars =
-                op("var", Annotation.KEYWORD_HEAD)
+                op("var", Annotation.KEYWORD_DEF)
                 .then(op(",", Annotation.SEPARATOR).joinPlus(Utils.append(varDecl, 0)));
 
         Parser<Tree> objectDecl = // object a = A(c,b)
@@ -362,7 +363,7 @@ public class MeelanParser {
                         .fold(ObjectDeclaration.CREATE));
 
         Reducer<List<Tree>, List<Tree>> objects =
-                op("object", Annotation.KEYWORD_HEAD).then(
+                op("object", Annotation.KEYWORD_DEF).then(
                         op(",", Annotation.SEPARATOR).joinPlus(Utils.append(objectDecl, 0)));
 
         Reducer<List<Tree>, List<Tree>> stmtAppender =

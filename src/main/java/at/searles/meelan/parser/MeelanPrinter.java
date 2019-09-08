@@ -58,16 +58,16 @@ public class MeelanPrinter extends CstPrinter {
                 space();
                 print(tree);
                 break;
-            case PREFIX_OP:
+            case KEYWORD_PREFIX:
+                print(tree);
+                space();
+                break;
+            case KEYWORD_DEF:
                 print(tree);
                 space();
                 break;
             case KEYWORD_INFIX:
                 space();
-                print(tree);
-                space();
-                break;
-            case KEYWORD_HEAD:
                 print(tree);
                 space();
                 break;
