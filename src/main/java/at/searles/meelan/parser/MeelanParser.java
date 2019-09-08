@@ -72,9 +72,8 @@ public class MeelanParser {
         SEPARATOR, // separates two elements. Usually spacing after separator
         BREAK,
         PREFIX_OP,
-        INFIX_OP,
-        PREFIX_KW,
-        INFIX_KW
+        KEYWORD_INFIX,
+        KEYWORD_HEAD
     }
 
     private MeelanParser() {
@@ -195,10 +194,10 @@ public class MeelanParser {
 
         Parser<Tree> ifexpr = unexpr.then(
                 Reducer.opt(
-                     op("if", Annotation.INFIX_KW)
+                     op("if", Annotation.KEYWORD_INFIX)
                      .then(Utils.<IfElse.Builder, Tree>builder(IfElse.Builder.class, "thenPart"))
                      .then(Utils.setter("condition", exprRef))
-                     .then(op("else", Annotation.INFIX_KW))
+                     .then(op("else", Annotation.KEYWORD_INFIX))
                      .then(Utils.setter("elsePart", exprRef))
                      .then(Utils.build(IfElse.Builder.class))
                 )
@@ -208,11 +207,11 @@ public class MeelanParser {
 
         Parser<Tree> consexpr = ifexpr.then(
             Reducer.opt(
-                op(":", Annotation.INFIX_OP)
+                op(":", Annotation.KEYWORD_INFIX)
                 .then(Utils.binary(ifexpr))
                 .then(
                     Reducer.rep(
-                        Utils.append(op(":", Annotation.INFIX_OP).then(ifexpr), 2)
+                        Utils.append(op(":", Annotation.KEYWORD_INFIX).then(ifexpr), 2)
                     )
                 )
                 .then(Instruction.app(Cons.get()))
@@ -220,46 +219,46 @@ public class MeelanParser {
         );
 
         Parser<Tree> powexpr = consexpr.then(Reducer.rep(
-            op("^", Annotation.INFIX_OP).then(consexpr.fold(Instruction.binary(Pow.get())))
+            op("^", Annotation.KEYWORD_INFIX).then(consexpr.fold(Instruction.binary(Pow.get())))
         ));
 
         Parser<Tree> mulexpr = powexpr.then(Reducer.rep(
-                op("*", Annotation.INFIX_OP).then(powexpr.fold(Instruction.binary(Mul.get())))
-                .or(op("/", Annotation.INFIX_OP).then(powexpr.fold(Instruction.binary(Div.get()))))
-                .or(op("%", Annotation.INFIX_OP).then(powexpr.fold(Instruction.binary(Mod.get()))))
+                op("*", Annotation.KEYWORD_INFIX).then(powexpr.fold(Instruction.binary(Mul.get())))
+                .or(op("/", Annotation.KEYWORD_INFIX).then(powexpr.fold(Instruction.binary(Div.get()))))
+                .or(op("%", Annotation.KEYWORD_INFIX).then(powexpr.fold(Instruction.binary(Mod.get()))))
         ));
 
         Parser<Tree> sumexpr = mulexpr.then(Reducer.rep(
-                op("+", Annotation.INFIX_OP).then(mulexpr.fold(Instruction.binary(Add.get())))
-                .or(op("-", Annotation.INFIX_OP).then(mulexpr.fold(Instruction.binary(Sub.get()))))
+                op("+", Annotation.KEYWORD_INFIX).then(mulexpr.fold(Instruction.binary(Add.get())))
+                .or(op("-", Annotation.KEYWORD_INFIX).then(mulexpr.fold(Instruction.binary(Sub.get()))))
         ));
 
         Parser<Tree> compexpr = sumexpr.then(
                 Reducer.opt(
-                    op("<", Annotation.INFIX_OP).then(sumexpr).fold(Instruction.binary(Less.get()))
-                    .or(op("=<", Annotation.INFIX_OP).then(sumexpr).fold(Instruction.binary(LessEq.get())))
-                    .or(op("==", Annotation.INFIX_OP).then(sumexpr).fold(Instruction.binary(Equal.get())))
-                    .or(op("><", Annotation.INFIX_OP).then(sumexpr).fold(Instruction.binary(NonEqual.get())))
-                    .or(op(">=", Annotation.INFIX_OP).then(sumexpr).fold(Instruction.binary(GreaterEqual.get())))
-                    .or(op(">", Annotation.INFIX_OP).then(sumexpr).fold(Instruction.binary(Greater.get())))
+                    op("<", Annotation.KEYWORD_INFIX).then(sumexpr).fold(Instruction.binary(Less.get()))
+                    .or(op("=<", Annotation.KEYWORD_INFIX).then(sumexpr).fold(Instruction.binary(LessEq.get())))
+                    .or(op("==", Annotation.KEYWORD_INFIX).then(sumexpr).fold(Instruction.binary(Equal.get())))
+                    .or(op("><", Annotation.KEYWORD_INFIX).then(sumexpr).fold(Instruction.binary(NonEqual.get())))
+                    .or(op(">=", Annotation.KEYWORD_INFIX).then(sumexpr).fold(Instruction.binary(GreaterEqual.get())))
+                    .or(op(">", Annotation.KEYWORD_INFIX).then(sumexpr).fold(Instruction.binary(Greater.get())))
                 )
         );
 
         Ref<Tree> literalRef = new Ref<>("literal");
 
         Parser<Tree> literal =
-                op("not", Annotation.PREFIX_KW).then(literalRef).then(Instruction.unary(Not.get()))
+                op("not", Annotation.KEYWORD_HEAD).then(literalRef).then(Instruction.unary(Not.get()))
                 .or(compexpr);
 
         literalRef.set(literal);
 
-        Parser<Tree> andexpr = literal.then(Reducer.rep(op("and", Annotation.INFIX_KW).then(literal.fold(Instruction.binary(And.get())))));
+        Parser<Tree> andexpr = literal.then(Reducer.rep(op("and", Annotation.KEYWORD_INFIX).then(literal.fold(Instruction.binary(And.get())))));
 
-        Parser<Tree> orexpr = andexpr.then(Reducer.rep(op("or", Annotation.INFIX_KW).then(andexpr.fold(Instruction.binary(Or.get())))));
+        Parser<Tree> orexpr = andexpr.then(Reducer.rep(op("or", Annotation.KEYWORD_INFIX).then(andexpr.fold(Instruction.binary(Or.get())))));
 
         Parser<Tree> assignexpr = orexpr.then(
                 Reducer.opt(
-                        op("=", Annotation.INFIX_OP).then(orexpr).fold(Assign.CREATE)
+                        op("=", Annotation.KEYWORD_INFIX).then(orexpr).fold(Assign.CREATE)
                 )
         );
 
@@ -271,28 +270,28 @@ public class MeelanParser {
 
         Ref<Tree> stmtRef = new Ref<>("stmt");
 
-        Parser<Tree> whilestmt= op("while", Annotation.PREFIX_KW).then(expr).then(
-                op("do", Annotation.INFIX_KW).then(stmtRef.fold(While.CREATE_DO))
+        Parser<Tree> whilestmt= op("while", Annotation.KEYWORD_HEAD).then(expr).then(
+                op("do", Annotation.KEYWORD_INFIX).then(stmtRef.fold(While.CREATE_DO))
                         .or(While.CREATE));
 
         Parser<Tree> forstmt =
-                op("for", Annotation.PREFIX_KW)
+                op("for", Annotation.KEYWORD_HEAD)
                 .then(Utils.builder(ForEach.Builder.class))
                 .then(Utils.setter("varName", idString))
-                .then(op("in", Annotation.INFIX_KW))
+                .then(op("in", Annotation.KEYWORD_INFIX))
                 .then(Utils.setter("vector", expr))
-                .then(op("do", Annotation.INFIX_KW))
+                .then(op("do", Annotation.KEYWORD_INFIX))
                 .then(Utils.setter("body", stmtRef))
                 .then(Utils.build(ForEach.Builder.class));
 
-        Parser<Tree> ifstmt = op("if", Annotation.PREFIX_KW)
+        Parser<Tree> ifstmt = op("if", Annotation.KEYWORD_HEAD)
                 .then(Utils.builder(IfElse.Builder.class))
                 .then(Utils.setter("condition", expr))
-                .then(op("then", Annotation.INFIX_KW))
+                .then(op("then", Annotation.KEYWORD_INFIX))
                 .then(Utils.setter("thenPart", stmtRef))
                 .then(
                     Reducer.opt(
-                        op("else", Annotation.INFIX_KW)
+                        op("else", Annotation.KEYWORD_INFIX)
                         .then(Utils.setter("elsePart", stmtRef))
                     )
                 )
@@ -305,12 +304,12 @@ public class MeelanParser {
         // now for declarations
 
         Parser<Tree> externDef =
-                op("extern", Annotation.PREFIX_KW)
+                op("extern", Annotation.KEYWORD_HEAD)
                 .then(Utils.builder(ExternDeclaration.Builder.class))
                 .then(Utils.setter("id", idString))
                 .then(Utils.setter("type", idString.annotate(Annotation.BREAK)))
                 .then(Reducer.opt(Utils.setter("description", quoted.annotate(Annotation.BREAK))))
-                .then(op("=", Annotation.INFIX_OP))
+                .then(op("=", Annotation.KEYWORD_INFIX))
                 .then(Utils.setter("value", expr))
                 .then(Utils.build(ExternDeclaration.Builder.class));
 
@@ -319,7 +318,7 @@ public class MeelanParser {
                 .then(op(")")));
 
         Parser<Tree> funcDef =
-                op("func", Annotation.PREFIX_KW)
+                op("func", Annotation.KEYWORD_HEAD)
                 .then(Utils.builder(Definition.FuncBuilder.class))
                 .then(Utils.setter("id", idString))
                 .then(Utils.setter("args", arguments))
@@ -329,7 +328,7 @@ public class MeelanParser {
         Parser<List<String>> possiblyEmptyArguments = arguments.or(Utils.empty());
 
         Parser<Tree> templateDef =
-                op("template", Annotation.PREFIX_KW)
+                op("template", Annotation.KEYWORD_HEAD)
                 .then(Utils.builder(Definition.TemplateBuilder.class))
                 .then(Utils.setter("id", idString))
                 .then(Utils.setter("args", possiblyEmptyArguments))
@@ -337,9 +336,9 @@ public class MeelanParser {
                 .then(Utils.build(Definition.TemplateBuilder.class));
 
         Parser<Tree> definition =
-                op("def", Annotation.PREFIX_KW)
+                op("def", Annotation.KEYWORD_HEAD)
                 .then(idString)
-                .then(op("=", Annotation.INFIX_OP))
+                .then(op("=", Annotation.KEYWORD_INFIX))
                 .then(expr.fold(Definition.CREATE));
 
         Parser<Tree> defs = externDef.or(funcDef).or(templateDef).or(definition);
@@ -351,20 +350,20 @@ public class MeelanParser {
                 Utils.builder(VarDeclaration.Builder.class)
                 .then(Utils.setter("id", idString))
                 .then(Reducer.opt(Utils.setter("type", idString.annotate(Annotation.BREAK))))
-                .then(Reducer.opt(Utils.setter("value", op("=", Annotation.INFIX_OP).then(assignexpr))))
+                .then(Reducer.opt(Utils.setter("value", op("=", Annotation.KEYWORD_INFIX).then(assignexpr))))
                 .then(Utils.build(VarDeclaration.Builder.class));
 
         Reducer<List<Tree>, List<Tree>> vars =
-                op("var", Annotation.PREFIX_KW)
+                op("var", Annotation.KEYWORD_HEAD)
                 .then(op(",", Annotation.SEPARATOR).joinPlus(Utils.append(varDecl, 0)));
 
         Parser<Tree> objectDecl = // object a = A(c,b)
                 idString.then(
-                        op("=", Annotation.INFIX_OP).then(expr)
+                        op("=", Annotation.KEYWORD_INFIX).then(expr)
                         .fold(ObjectDeclaration.CREATE));
 
         Reducer<List<Tree>, List<Tree>> objects =
-                op("object", Annotation.PREFIX_KW).then(
+                op("object", Annotation.KEYWORD_HEAD).then(
                         op(",", Annotation.SEPARATOR).joinPlus(Utils.append(objectDecl, 0)));
 
         Reducer<List<Tree>, List<Tree>> stmtAppender =
