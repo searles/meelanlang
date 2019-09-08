@@ -71,7 +71,6 @@ public class MeelanParser {
         VALUE,
         SEPARATOR, // separates two elements. Usually spacing after separator
         BREAK,
-        PREFIX_OP,
         KEYWORD_INFIX,
         KEYWORD_HEAD
     }
@@ -186,8 +185,8 @@ public class MeelanParser {
         Ref<Tree> unexprRef = new Ref<>("unexpr");
 
         Parser<Tree> unexpr =
-                op("-", Annotation.PREFIX_OP).then(unexprRef).then(Instruction.unary(Neg.get()))
-                .or(op("/", Annotation.PREFIX_OP).then(unexprRef).then(Instruction.unary(Recip.get())))
+                op("-", Annotation.KEYWORD_HEAD).then(unexprRef).then(Instruction.unary(Neg.get()))
+                .or(op("/", Annotation.KEYWORD_HEAD).then(unexprRef).then(Instruction.unary(Recip.get())))
                 .or(term);
 
         unexprRef.set(unexpr);
