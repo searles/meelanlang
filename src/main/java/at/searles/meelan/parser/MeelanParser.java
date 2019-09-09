@@ -41,6 +41,8 @@ public class MeelanParser {
     }
 
     public static Recognizer eof() {
+        // XXX This should rather be part of the parser itself,
+        // but due to backwards compatibility it is not.
         return Holder.INSTANCE.eof;
     }
 
