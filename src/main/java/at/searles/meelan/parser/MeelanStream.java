@@ -1,6 +1,6 @@
 package at.searles.meelan.parser;
 
-import at.searles.lexer.TokStream;
+import at.searles.lexer.TokenStream;
 import at.searles.meelan.MeelanException;
 import at.searles.meelan.ParsingException;
 import at.searles.meelan.optree.inlined.ExternDeclaration;
@@ -15,7 +15,7 @@ public class MeelanStream extends ParserStream {
 
     private Map<String, ExternDeclaration> externDecls = new LinkedHashMap<>();
 
-    public MeelanStream(TokStream stream) {
+    public MeelanStream(TokenStream stream) {
         super(stream);
     }
 

@@ -11,69 +11,67 @@ import at.searles.meelan.values.Bool;
 import at.searles.meelan.values.Label;
 import at.searles.meelan.values.Reg;
 import at.searles.meelan.values.Value;
-import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
-import at.searles.utils.GenericStruct;
 
 import java.util.stream.Stream;
 
 public class IfElse extends Tree {
 
     // order is (thenExpr, condition), elseExpr.
-    private Tree cond;
-    private Tree thenPart;
-    private Tree elsePart;
+    private Tree condition;
+    private Tree thenBranch;
+    private Tree elseBranch;
 
     /**
-     * @param elsePart may be null for statements.
+     * @param elseBranch may be null for statements.
      */
-    public IfElse(SourceInfo info, Tree cond, Tree thenPart, Tree elsePart) {
+    public IfElse(SourceInfo info, Tree condition, Tree thenBranch, Tree elseBranch) {
         super(info);
-        this.cond = cond;
-        this.thenPart = thenPart;
-        this.elsePart = elsePart;
+        this.condition = condition;
+        this.thenBranch = thenBranch;
+        this.elseBranch = elseBranch;
     }
 
     /**
      * This constructor is important for IfElse-expressions because
      * it contains the common type.
      */
-    public IfElse(SourceInfo info, Tree cond, Tree thenPart, Tree elsePart, BaseType type) {
-        this(info, cond, thenPart, elsePart);
+    public IfElse(SourceInfo info, Tree cond, Tree thenBranch, Tree elseBranch, BaseType type) {
+        this(info, cond, thenBranch, elseBranch);
         assignType(type);
     }
 
     public String toString() {
-        return String.format("if %s then %s else %s", cond, thenPart, elsePart);
+        return String.format("if %s then %s else %s", condition, thenBranch, elseBranch);
     }
 
     @Override
     public Tree preprocessor(SymTable table, IdResolver resolver, Frame.Builder frameBuilder) throws MeelanException {
-        Tree inlineCond = cond.preprocessor(table, resolver, frameBuilder);
+        Tree inlineCond = condition.preprocessor(table, resolver, frameBuilder);
 
         if(inlineCond == null || inlineCond.type() != BaseType.bool) {
-            throw new MeelanException("condition is not a boolean", cond);
+            throw new MeelanException("condition is not a boolean", condition);
         }
 
         if(inlineCond instanceof Bool) {
             if(((Bool) inlineCond).value) {
-                return thenPart.preprocessor(table, resolver, frameBuilder);
-            } else if(elsePart == null) {
+                return thenBranch.preprocessor(table, resolver, frameBuilder);
+            } else if(elseBranch == null) {
                 return null;
             } else {
-                return elsePart.preprocessor(table, resolver, frameBuilder);
+                return elseBranch.preprocessor(table, resolver, frameBuilder);
             }
         }
 
-        Tree thenInlined = thenPart.preprocessor(table, resolver, frameBuilder);
+        Tree thenInlined = thenBranch.preprocessor(table, resolver, frameBuilder);
 
-        if(elsePart == null) {
+        if(elseBranch == null) {
             return new IfElse(sourceInfo(), inlineCond, thenInlined, null, BaseType.unit);
         }
 
         // make types match in "then" and "else"
 
-        Tree elseInlined = elsePart.preprocessor(table, resolver, frameBuilder);
+        Tree elseInlined = elseBranch.preprocessor(table, resolver, frameBuilder);
 
         if(thenInlined.type().canConvertTo(elseInlined.type())) {
             thenInlined = thenInlined.convertTo(elseInlined.type());
@@ -89,9 +87,9 @@ public class IfElse extends Tree {
 
     @Override
     public Stream<Tree> children() {
-        return elsePart != null ?
-                Stream.of(cond, thenPart, elsePart) :
-                Stream.of(cond, thenPart);
+        return elseBranch != null ?
+                Stream.of(condition, thenBranch, elseBranch) :
+                Stream.of(condition, thenBranch);
     }
 
     @Override
@@ -99,12 +97,12 @@ public class IfElse extends Tree {
         Label trueLabel = new Label();
         Label falseLabel = new Label();
 
-        cond.linearizeBool(trueLabel, falseLabel, program);
+        condition.linearizeBool(trueLabel, falseLabel, program);
 
         program.add(trueLabel);
-        thenPart.linearizeStmt(program);
+        thenBranch.linearizeStmt(program);
 
-        if(elsePart == null) {
+        if(elseBranch == null) {
             program.add(falseLabel);
             return;
         }
@@ -115,7 +113,7 @@ public class IfElse extends Tree {
 
         program.add(falseLabel);
 
-        elsePart.linearizeStmt(program);
+        elseBranch.linearizeStmt(program);
 
         program.add(endLabel);
     }
@@ -130,7 +128,7 @@ public class IfElse extends Tree {
         Label falseLabel = new Label(); // label for condition
         Label endLabel = new Label();
 
-        cond.linearizeBool(trueLabel, falseLabel, program);
+        condition.linearizeBool(trueLabel, falseLabel, program);
 
         program.add(trueLabel);
 
@@ -138,13 +136,13 @@ public class IfElse extends Tree {
             target = program.createRegister(type());
         }
 
-        thenPart.linearizeExpr(target, program); // FIXME inner (unit test!)?
+        thenBranch.linearizeExpr(target, program); // FIXME inner (unit test!)?
 
         program.add(Jump.get().createCall(endLabel));
 
         program.add(falseLabel);
 
-        elsePart.linearizeExpr(target, program); // FIXME inner (unit test!)?
+        elseBranch.linearizeExpr(target, program); // FIXME inner (unit test!)?
 
         program.add(endLabel);
 
@@ -156,31 +154,13 @@ public class IfElse extends Tree {
         Label condTrueLabel = new Label(); // label for condition
         Label condFalseLabel = new Label(); // label for condition
 
-        // if condition is true then thenPart.linearizeBool(true, false) else elsePart.linearizeBool(true, false)
-        cond.linearizeBool(condTrueLabel, condFalseLabel, program); // FIXME
+        // if condition is true then thenBranch.linearizeBool(true, false) else elseBranch.linearizeBool(true, false)
+        condition.linearizeBool(condTrueLabel, condFalseLabel, program); // FIXME
 
         program.add(condTrueLabel);
-        thenPart.linearizeBool(trueLabel, falseLabel, program); // FIXME
+        thenBranch.linearizeBool(trueLabel, falseLabel, program); // FIXME
 
         program.add(condFalseLabel);
-        elsePart.linearizeBool(trueLabel, falseLabel, program); // FIXME
-    }
-
-    public static class Builder extends GenericStruct<Builder> {
-        public Tree condition;
-        public Tree thenPart;
-        public Tree elsePart; // may be null
-
-        public IfElse build(ParserStream stream) {
-            return new IfElse(stream.createSourceInfo(), condition, thenPart, elsePart);
-        }
-
-        public static Builder toBuilder(IfElse ifElse) {
-            Builder b = new Builder();
-            b.condition = ifElse.cond;
-            b.thenPart = ifElse.thenPart;
-            b.elsePart = ifElse.elsePart;
-            return b;
-        }
+        elseBranch.linearizeBool(trueLabel, falseLabel, program); // FIXME
     }
 }

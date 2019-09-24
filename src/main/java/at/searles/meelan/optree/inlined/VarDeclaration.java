@@ -6,33 +6,10 @@ import at.searles.meelan.optree.compiled.Assign;
 import at.searles.meelan.symbols.IdResolver;
 import at.searles.meelan.symbols.SymTable;
 import at.searles.meelan.types.BaseType;
-import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.SourceInfo;
-import at.searles.utils.GenericStruct;
 import java.util.stream.Stream;
 
 public class VarDeclaration extends Tree {
-//    public static final Mapping<Triple<String, Optional<String>, Optional<Tree>>, Tree> CREATE = new Mapping<Triple<String, Optional<String>, Optional<Tree>>, Tree>() {
-//        @Override
-//        public Tree parse(Triple<String, Optional<String>, Optional<Tree>> left, ParserStream stream) {
-//            return new VarDeclaration(left.l(), left.m().orElse(null), left.r().orElse(null));
-//        }
-//
-//        @Override
-//        public Triple<String, Optional<String>, Optional<Tree>> left(Tree result) {
-//            if(!(result instanceof VarDeclaration)) {
-//                return null;
-//            }
-//
-//            VarDeclaration decl = (VarDeclaration) result;
-//
-//            return new Triple<>(
-//                    decl.id,
-//                    Optional.ofNullable(decl.typeString),
-//                    Optional.ofNullable(decl.init)
-//            );
-//        }
-//    };
 
     // Variable declarations must either have a type or an initialization.
     private String id;
@@ -84,26 +61,5 @@ public class VarDeclaration extends Tree {
         table.add(id, var);
 
         return newInit != null ? new Assign(sourceInfo(), var, newInit) : null;
-    }
-
-    public static class Builder extends GenericStruct<Builder> {
-        public String id;
-        public String type;
-        public Tree value;
-
-        public static Builder toBuilder(VarDeclaration decl) {
-            Builder builder = new Builder();
-
-            builder.id = decl.id;
-            builder.type = decl.typeString;
-            builder.value = decl.init;
-
-            return builder;
-        }
-
-        public VarDeclaration build(ParserStream stream) {
-            return new VarDeclaration(stream.createSourceInfo(),
-                    id, type, value);
-        }
     }
 }

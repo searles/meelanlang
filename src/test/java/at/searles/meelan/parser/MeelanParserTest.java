@@ -1,6 +1,6 @@
 package at.searles.meelan.parser;
 
-import at.searles.lexer.TokStream;
+import at.searles.lexer.TokenStream;
 import at.searles.parsing.Parser;
 import at.searles.parsing.ParserStream;
 import at.searles.parsing.printing.ConcreteSyntaxTree;
@@ -781,13 +781,13 @@ public class MeelanParserTest {
     }
 
     private <A> String check(Parser<A> parser, String input) {
-        A result = parser.parse(new MeelanStream(TokStream.fromString(input)));
+        A result = parser.parse(new MeelanStream(TokenStream.fromString(input)));
 
         Assert.assertNotNull(result);
 
         String outString = outString(parser, result);
 
-        A verifiedResult = parser.parse(new MeelanStream(TokStream.fromString(input)));
+        A verifiedResult = parser.parse(new MeelanStream(TokenStream.fromString(input)));
 
         String checkOutString = outString(parser, verifiedResult);
 

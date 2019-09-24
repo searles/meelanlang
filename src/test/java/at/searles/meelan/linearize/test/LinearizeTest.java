@@ -1,6 +1,6 @@
 package at.searles.meelan.linearize.test;
 
-import at.searles.lexer.TokStream;
+import at.searles.lexer.TokenStream;
 import at.searles.meelan.DefaultData;
 import at.searles.meelan.MeelanException;
 import at.searles.meelan.compiler.Ast;
@@ -26,7 +26,7 @@ public class LinearizeTest {
     private void setSource(String program) {
         this.source = program;
 
-        ParserStream stream = new ParserStream(TokStream.fromString(source));
+        ParserStream stream = new ParserStream(TokenStream.fromString(source));
         this.ast = Ast.parse(stream);
     }
 

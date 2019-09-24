@@ -1,6 +1,7 @@
 package at.searles.meelan.parser;
 
-import at.searles.lexer.LexerWithHidden;
+import at.searles.lexer.Lexer;
+import at.searles.lexer.SkipTokenizer;
 import at.searles.meelan.ops.Instruction;
 import at.searles.meelan.ops.arithmetics.*;
 import at.searles.meelan.ops.bool.*;
@@ -58,7 +59,7 @@ public class MeelanParser {
         return Holder.INSTANCE.mlCommentId;
     }
 
-    private LexerWithHidden lexer;
+    private SkipTokenizer lexer;
 
     private Parser<List<Tree>> stmts;
     private Parser<Tree> expr;
@@ -102,14 +103,18 @@ public class MeelanParser {
     }
 
     private void initLexer() {
-        this.lexer = new LexerWithHidden();
-        wsId = lexer.addHiddenToken(r("[\n\r\t ]+"));
-        slCommentId = lexer.addHiddenToken(r("('//'.*'\n')!"));
-        mlCommentId = lexer.addHiddenToken(r("('/*'.*'*/')!"));
+        this.lexer = new SkipTokenizer(new Lexer());
+        wsId = lexer.add(r("[\n\r\t ]+"));
+        slCommentId = lexer.add(r("('//'.*'\n')!"));
+        mlCommentId = lexer.add(r("('/*'.*'*/')!"));
+        
+        lexer.addSkipped(wsId);
+        lexer.addSkipped(slCommentId);
+        lexer.addSkipped(mlCommentId);
     }
 
     private void initParser() {
-        Parser<String> idString = Parser.fromToken(lexer.token(r("[A-Za-z_][0-9A-Za-z_]*")), new Mapping<CharSequence, String>() {
+        Parser<String> idString = Parser.fromRegex(r("[A-Za-z_][0-9A-Za-z_]*"), lexer, true, new Mapping<CharSequence, String>() {
             @Override
             public String parse(ParserStream stream, @NotNull CharSequence left) {
                 return left.toString();
@@ -119,9 +124,9 @@ public class MeelanParser {
             public CharSequence left(@NotNull String result) {
                 return result;
             }
-        }, true);
+        });
 
-        Parser<String> quoted = Parser.fromToken(lexer.token(r("('\"'.*'\"')!")), new Mapping<CharSequence, String>() {
+        Parser<String> quoted = Parser.fromRegex(r("('\"'.*'\"')!"), lexer, true, new Mapping<CharSequence, String>() {
             @Override
             public String parse(ParserStream stream, @NotNull CharSequence left) {
                 return left.toString().substring(1, left.length() - 1);
@@ -131,15 +136,15 @@ public class MeelanParser {
             public CharSequence left(@NotNull String result) {
                 return "\"" + result + "\"";
             }
-        }, true).annotate(Annotation.STRING);
+        }).annotate(Annotation.STRING);
 
-        Parser<Tree> id = Parser.fromToken(lexer.token(r("[A-Za-z_][0-9A-Za-z_]*")), Id.TOK, true);
+        Parser<Tree> id = Parser.fromRegex(r("[A-Za-z_][0-9A-Za-z_]*"), lexer, true, Id.TOK);
 
-        Parser<Tree> integer = Parser.fromToken(lexer.token(r("'0'|[1-9][0-9]{0,8}")), Int.NUM, false); // max is 99999999
-        Parser<Tree> string = Parser.fromToken(lexer.token(r("('\"'.*'\"')!")), StringVal.TOK, false);
-        Parser<Tree> hexColor = Parser.fromToken(lexer.token(r("'#'[0-9A-Fa-f]{1,8}")), Int.HEX, false);
-        Parser<Tree> real = Parser.fromToken(lexer.token(r("('0'|[1-9][0-9]*)('.'[0-9]*)?([eE][+\\-]?[0-9]+)?")), Real.TOK, false);
-        Parser<Tree> bool = Parser.fromToken(lexer.token(r("'true'|'false'")), Bool.TOK, false);
+        Parser<Tree> integer = Parser.fromRegex(r("'0'|[1-9][0-9]{0,8}"), lexer, false, Int.NUM); // max is 99999999
+        Parser<Tree> string = Parser.fromRegex(r("('\"'.*'\"')!"), lexer, false, StringVal.TOK);
+        Parser<Tree> hexColor = Parser.fromRegex(r("'#'[0-9A-Fa-f]{1,8}"), lexer, false, Int.HEX);
+        Parser<Tree> real = Parser.fromRegex(r("('0'|[1-9][0-9]*)('.'[0-9]*)?([eE][+\\-]?[0-9]+)?"), lexer, false, Real.TOK);
+        Parser<Tree> bool = Parser.fromRegex(r("'true'|'false'"), lexer, false, Bool.TOK);
 
         Parser<Tree> primitives = id.or(
                 integer.or(string).or(hexColor).or(real).or(bool)
@@ -203,11 +208,11 @@ public class MeelanParser {
         Parser<Tree> ifexpr = unexpr.then(
                 Reducer.opt(
                      op("if", Annotation.KEYWORD_INFIX)
-                     .then(Utils.<IfElse.Builder, Tree>builder(IfElse.Builder.class, "thenPart"))
-                     .then(Utils.setter("condition", exprRef))
+                     .then(Utils.<Tree>properties("thenBranch"))
+                     .then(Utils.put("condition", exprRef))
                      .then(op("else", Annotation.KEYWORD_INFIX))
-                     .then(Utils.setter("elsePart", exprRef))
-                     .then(Utils.build(IfElse.Builder.class))
+                     .then(Utils.put("elseBranch", exprRef))
+                     .then(Utils.create(IfElse.class, "condition", "thenBranch", "elseBranch"))
                 )
         );
 
@@ -284,26 +289,26 @@ public class MeelanParser {
 
         Parser<Tree> forstmt =
                 op("for", Annotation.KEYWORD_PREFIX)
-                .then(Utils.builder(ForEach.Builder.class))
-                .then(Utils.setter("varName", idString))
+                .then(Utils.properties())
+                .then(Utils.put("varName", idString))
                 .then(op("in", Annotation.KEYWORD_INFIX))
-                .then(Utils.setter("vector", expr))
+                .then(Utils.put("vector", expr))
                 .then(op("do", Annotation.KEYWORD_INFIX))
-                .then(Utils.setter("body", stmtRef))
-                .then(Utils.build(ForEach.Builder.class));
+                .then(Utils.put("body", stmtRef))
+                .then(Utils.create(ForEach.class, "varName", "vector", "body"));
 
         Parser<Tree> ifstmt = op("if", Annotation.KEYWORD_PREFIX)
-                .then(Utils.builder(IfElse.Builder.class))
-                .then(Utils.setter("condition", expr))
+                .then(Utils.properties())
+                .then(Utils.put("condition", expr))
                 .then(op("then", Annotation.KEYWORD_INFIX))
-                .then(Utils.setter("thenPart", stmtRef))
+                .then(Utils.put("thenBranch", stmtRef))
                 .then(
                     Reducer.opt(
                         op("else", Annotation.KEYWORD_INFIX)
-                        .then(Utils.setter("elsePart", stmtRef))
+                        .then(Utils.put("elseBranch", stmtRef))
                     )
                 )
-                .then(Utils.build(IfElse.Builder.class));
+                .then(Utils.create(IfElse.class, "condition", "thenBranch", "elseBranch"));
 
         stmt = whilestmt.or(forstmt).or(ifstmt).or(expr);
 
@@ -313,13 +318,13 @@ public class MeelanParser {
 
         Parser<Tree> externDef =
                 op("extern", Annotation.KEYWORD_DEF)
-                .then(Utils.builder(ExternDeclaration.Builder.class))
-                .then(Utils.setter("id", idString))
-                .then(Utils.setter("type", idString.annotate(Annotation.BREAK)))
-                .then(Reducer.opt(Utils.setter("description", quoted.annotate(Annotation.BREAK))))
+                .then(Utils.properties())
+                .then(Utils.put("id", idString))
+                .then(Utils.put("type", idString.annotate(Annotation.BREAK)))
+                .then(Reducer.opt(Utils.put("description", quoted.annotate(Annotation.BREAK))))
                 .then(op("=", Annotation.KEYWORD_INFIX))
-                .then(Utils.setter("value", expr))
-                .then(Utils.build(ExternDeclaration.Builder.class));
+                .then(Utils.put("value", expr))
+                .then(Utils.create(ExternDeclaration.class, "id", "type", "description", "value"));
 
         Parser<List<String>> arguments = op("(").then(
                 Utils.list(idString, op(",", Annotation.SEPARATOR))
@@ -327,21 +332,21 @@ public class MeelanParser {
 
         Parser<Tree> funcDef =
                 op("func", Annotation.KEYWORD_DEF)
-                .then(Utils.builder(Definition.FuncBuilder.class))
-                .then(Utils.setter("id", idString))
-                .then(Utils.setter("args", arguments))
-                .then(Utils.setter("body", stmt.annotate(Annotation.BREAK)))
-                .then(Utils.build(Definition.FuncBuilder.class));
+                .then(Utils.properties())
+                .then(Utils.put("id", idString))
+                .then(Utils.put("args", arguments))
+                .then(Utils.put("body", stmt.annotate(Annotation.BREAK)))
+                .then(Utils.create(FuncDef.class, "id", "args", "body"));
 
         Parser<List<String>> possiblyEmptyArguments = arguments.or(Utils.empty());
 
         Parser<Tree> templateDef =
                 op("template", Annotation.KEYWORD_DEF)
-                .then(Utils.builder(Definition.TemplateBuilder.class))
-                .then(Utils.setter("id", idString))
-                .then(Utils.setter("args", possiblyEmptyArguments))
-                .then(Utils.setter("body", block.annotate(Annotation.BREAK)))
-                .then(Utils.build(Definition.TemplateBuilder.class));
+                .then(Utils.properties())
+                .then(Utils.put("id", idString))
+                .then(Utils.put("args", possiblyEmptyArguments))
+                .then(Utils.put("body", block.annotate(Annotation.BREAK)))
+                .then(Utils.create(TemplateDef.class, "id", "args", "body"));
 
         Parser<Tree> definition =
                 op("def", Annotation.KEYWORD_DEF)
@@ -355,11 +360,11 @@ public class MeelanParser {
         // XXX Meelan2: Change chaining-rules.
 
         Parser<Tree> varDecl =
-                Utils.builder(VarDeclaration.Builder.class)
-                .then(Utils.setter("id", idString))
-                .then(Reducer.opt(Utils.setter("type", idString.annotate(Annotation.BREAK))))
-                .then(Reducer.opt(Utils.setter("value", op("=", Annotation.KEYWORD_INFIX).then(assignexpr))))
-                .then(Utils.build(VarDeclaration.Builder.class));
+                Utils.properties()
+                .then(Utils.put("id", idString))
+                .then(Reducer.opt(Utils.put("typeString", idString.annotate(Annotation.BREAK))))
+                .then(Reducer.opt(Utils.put("init", op("=", Annotation.KEYWORD_INFIX).then(assignexpr))))
+                .then(Utils.create(VarDeclaration.class, "id", "typeString", "init"));
 
         Reducer<List<Tree>, List<Tree>> vars =
                 op("var", Annotation.KEYWORD_DEF)

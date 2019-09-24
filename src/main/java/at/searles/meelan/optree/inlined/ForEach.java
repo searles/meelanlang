@@ -6,10 +6,8 @@ import at.searles.meelan.optree.compiled.*;
 import at.searles.meelan.symbols.IdResolver;
 import at.searles.meelan.symbols.SymTable;
 import at.searles.meelan.values.Int;
-import at.searles.parsing.ParserStream;
 import at.searles.parsing.utils.ast.AstNode;
 import at.searles.parsing.utils.ast.SourceInfo;
-import at.searles.utils.GenericStruct;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,26 +56,5 @@ public class ForEach extends Tree {
     
     public String toString() {
         return "foreach" + children().map(AstNode::toString).collect(Collectors.joining(", "));
-    }
-
-    public static class Builder extends GenericStruct<Builder> {
-
-        public String varName;
-        public Tree vector;
-        public Tree body;
-
-        public ForEach build(ParserStream stream) {
-            return new ForEach(stream.createSourceInfo(), varName, vector, body);
-        }
-
-        public static Builder toBuilder(ForEach fe) {
-            Builder b = new Builder();
-
-            b.vector = fe.vector;
-            b.varName = fe.varName;
-            b.body = fe.body;
-
-            return b;
-        }
     }
 }
