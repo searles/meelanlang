@@ -17,5 +17,5 @@ dependencies {
     implementation 'com.github.searles.utils:strings:0.3.0'
     implementation 'com.github.searles.utils:math:0.2'
     implementation 'com.github.searles.utils:color:0.2'
-    implementation 'com.github.searles:parsing:5b907dc93a6a94145b7b72a074be1b6b4b2580f0'
+    implementation 'com.github.searles:parsing:53a435196fd729bb82a968c53d419fd32cf594b4'
 }

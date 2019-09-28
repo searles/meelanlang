@@ -2,12 +2,10 @@ package at.searles.meelan.parser;
 
 import at.searles.lexer.TokenStream;
 import at.searles.parsing.Parser;
-import at.searles.parsing.ParserStream;
 import at.searles.parsing.printing.ConcreteSyntaxTree;
 import at.searles.parsing.printing.CstPrinter;
 import at.searles.parsing.printing.StringOutStream;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -763,8 +761,6 @@ public class MeelanParserTest {
     }
 
 
-    private MeelanParser parser;
-
     private String input;
     private String result;
 
@@ -781,9 +777,14 @@ public class MeelanParserTest {
     }
 
     private <A> String check(Parser<A> parser, String input) {
-        A result = parser.parse(new MeelanStream(TokenStream.fromString(input)));
+        MeelanStream stream = new MeelanStream(TokenStream.fromString(input));
+        A result = parser.parse(stream);
 
         Assert.assertNotNull(result);
+
+        MeelanStream stream2 = new MeelanStream(TokenStream.fromString(input));
+        Assert.assertTrue(parser.recognize(stream2));
+        Assert.assertEquals(stream.end(), stream2.end());
 
         String outString = outString(parser, result);
 
