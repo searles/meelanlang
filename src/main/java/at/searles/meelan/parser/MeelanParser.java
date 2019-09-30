@@ -105,7 +105,7 @@ public class MeelanParser {
     private void initLexer() {
         this.lexer = new SkipTokenizer(new Lexer());
         wsId = lexer.add(r("[\n\r\t ]+"));
-        slCommentId = lexer.add(r("('//'.*'\n')!"));
+        slCommentId = lexer.add(r("'//'[^\n]*"));
         mlCommentId = lexer.add(r("('/*'.*'*/')!"));
         
         lexer.addSkipped(wsId);

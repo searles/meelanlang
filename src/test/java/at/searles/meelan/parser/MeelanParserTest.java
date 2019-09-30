@@ -1,7 +1,9 @@
 package at.searles.meelan.parser;
 
+import at.searles.lexer.Lexer;
 import at.searles.lexer.TokenStream;
 import at.searles.parsing.Parser;
+import at.searles.parsing.Recognizer;
 import at.searles.parsing.printing.ConcreteSyntaxTree;
 import at.searles.parsing.printing.CstPrinter;
 import at.searles.parsing.printing.StringOutStream;
@@ -366,6 +368,15 @@ public class MeelanParserTest {
     @Test
     public void testSingleLineComments() {
         withSource("// this is a comment\na = a");
+
+        runParser(MeelanParser.stmt());
+
+        assertResult("a = a");
+    }
+
+    @Test
+    public void testSingleLineCommentAtEnd() {
+        withSource("a = a// this is a comment");
 
         runParser(MeelanParser.stmt());
 
@@ -777,14 +788,21 @@ public class MeelanParserTest {
     }
 
     private <A> String check(Parser<A> parser, String input) {
+        // Checks for euqivalence of parse and recognize
+        // Checks whether the whole input is parsed.
+        // Checks whether the print and reparsed result are equivalent.
         MeelanStream stream = new MeelanStream(TokenStream.fromString(input));
         A result = parser.parse(stream);
 
         Assert.assertNotNull(result);
 
+
         MeelanStream stream2 = new MeelanStream(TokenStream.fromString(input));
         Assert.assertTrue(parser.recognize(stream2));
         Assert.assertEquals(stream.end(), stream2.end());
+
+        Assert.assertTrue(Recognizer.eof(new Lexer()).recognize(stream));
+        Assert.assertTrue(Recognizer.eof(new Lexer()).recognize(stream2));
 
         String outString = outString(parser, result);
 
